@@ -1,4 +1,4 @@
- # commands
+ # Commands
   $ git init -> 깃 저장소로 초기화 (.git 폴더 생성, 다른 깃 명령어 사용가능상태 )
 
   $ git add <file> -> 해당 파일을 스테이지 영역에 추가 (커밋가능상태)
