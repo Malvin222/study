@@ -1,8 +1,8 @@
 # Spring Framework 
-- 경량 컨테이너
--  IoC(Invertion of Control:제어역행) : new 연사자를 통해 인스턴스를 생성하고 메서드를 호출하는 생명주기에 대한 작업을 스프링에 위임
-- DI(Dependency Injection: 의존성 주입) : DI를 이용하여 빈(Bean)객체 관리, 스프링컨테이너에 클래스를 등록하면 인스턴스 관리
-- AOP(Aspect_Oriented Programming:관점지향 프로그래밍)
+1. 경량 컨테이너
+2.  IoC(Invertion of Control:제어역행) : new 연사자를 통해 인스턴스를 생성하고 메서드를 호출하는 생명주기에 대한 작업을 스프링에 위임
+3. DI(Dependency Injection: 의존성 주입) : DI를 이용하여 빈(Bean)객체 관리, 스프링컨테이너에 클래스를 등록하면 인스턴스 관리
+4. AOP(Aspect_Oriented Programming:관점지향 프로그래밍)
 
 - Bean 설정 -> XML을 통한 DI , Annotations를 이용한 DI
 
