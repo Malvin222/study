@@ -1,37 +1,58 @@
--- commands -- 
+ # commands
   $ git init -> 깃 저장소로 초기화 (.git 폴더 생성, 다른 깃 명령어 사용가능상태 )
 
   $ git add <file> -> 해당 파일을 스테이지 영역에 추가 (커밋가능상태)
+  
   $ git rm --cached <file> -> 해당 파일을 스테이지 영역에서 제거
+  
   $ git status -> 스테이지 영역에 커밋할 준비가 된 파일 확인 
+  
   $ git commit -> 변경사항 커밋
+  
   $ git push -> 원격 저장소로 푸시 (github 연동)
+  
   $ git pull -> 원격저장소에서 최신 변경사항을 가져옴
+  
   $ git clone ->원격저장소를 현재 폴더에 복사
+  
   -m -> 메세지 추가
-  --로컬 저장소 설정--
-  $git config --global user.name '이름' 
-  $git config --global user.email '이메일' 
+  
+  ### 로컬 저장소 설정
+  $ git config --global user.name '이름' 
+  
+  $ git config --global user.email '이메일' 
 
-  --gitignore--
-  touch .gitignore 
+  ### gitignore
+  touch .gitignore -> gitignore 파일 생성
+  
   log.txt -> log.txt의 변경사항 무시
+  
   /dir -> dir 폴더의 변경사항 무시
+  
   *.txt ->txt 파일 무시
 
-  --branch--
+  ### branch
   $ git branch login -> 로그인 브런치 추가
+  
   $ git checkout login -> 로그인 브런치에 마스터 브런치의 파일을 불러옴 및 현재 브런치 이동
-  파일 생성 및 변경  add , commit
+  
+  파일 생성 및 변경 후 add , commit
+  
   $ git checkout master -> 마스터 브런치로 이동
+  
   로그인 브런치에서 생성 및 변경된 파일들은 적용되지 않음
+  
   $ git merge login -> 병합 편집기 실행 
+  
   메모 후 :wq 로 저장
+  
   로그인 브런치에서 만든 파일 및 변경을 가져옴
 
-  --remote--
+  ### remote
   $ git remote add origin https://github.com/-----   -> 원격 저장소로 연결
+  
   $ git remote -> 원격저장소 표시
+  
   $ git push -u origin master -> 로컬 저장소 파일 및 폴더를 원격 저장소로 푸시 (로컬저장소 커밋된 내역만 푸시)
   
   touch log.txt
