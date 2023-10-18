@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마진계산기
+    </title>
+</head>
+<style>
+#buy{
+    width: 100px;
+}
+#margin{
+    width: 100px;
+}
+#cell{
+    width: 100px;
+    margin-bottom: 15px;
+}
+#earn{
+    width: 100px;
+}
+.wrap1{
+    text-align: center;
+    width: auto;
+    height: auto;
+}
+.warp2{
+    text-align: center;
+}
+.btn1{
+    margin: 20px;
+}
+</style>
+<script>
+    function calMargin(event){
+        //폼 제출 방지
+        event.preventDefault();
+        //매입가
+        const buy_price = parseFloat(document.querySelector('#buy_price').value);
+        //판매가
+        const cell_price = parseFloat(document.querySelector('#cell_price').value);
+        //순이익 = 판매가 - 매입가
+        const margin_value = cell_price - buy_price; 
+        //마진율 = 순이익 / 판매가
+        const margin_rate = (margin_value / cell_price) * 100;
+        document.getElementById('margin_rate').textContent = margin_rate.toFixed(2) + "%";
+        document.getElementById('margin_value').textContent = margin_value +"원";
+    }
+</script>
+<!--  // 기초 마진
+ const marginVal_first = margin_price - margin_raw;
+ const marginRate_first = marginVal_first / margin_price;
+
+ // 1. 마켓 수수료 = 판매가 * 마켓수수료율
+ const marektFee = margin_price * (margin_fee/100);
+
+ // 2. 부가세 = (판매가-매입가)/1.1 * 부가세율
+ const addedTax = ((margin_price/1.1) * (margin_addedTax/100)) - ((margin_raw/1.1) * (margin_addedTax/100));
+
+ // 3. 종합소득세 = (판매가 - 매입가 - 마켓수수료 - 부가세) * 종소세율
+ const incomeTax = (margin_price - margin_raw - marektFee - addedTax) * (margin_incomeTax/100);
+
+ // 4. 최종 마진 = 판매가 - 매입가 - 마켓수수료 - 경비 - 세금
+ const marginVal_final = margin_price - margin_raw -margin_cost - marektFee - addedTax - incomeTax;
+ const marginRate_fianl = marginVal_final / margin_price; -->
+
+
+<body>
+    <!--전체 div-->
+    <div class="wrap1">
+        <!--마진 세션-->
+        <section id ="section_margin">
+            <h1>마진율 계산기</h1>
+            <article class="input">
+                <form action="" id="form_margin" onsubmit="calMargin(event)">
+                    <div>매입가 : <input type="number" value="" id="buy_price"> </div>
+                    <div>판매가 : <input type="number" value="" id="cell_price"> </div>
+                    <div>마진율 : <span id="margin_rate"></span> </div>
+                    <div>순이익 : <span id="margin_value"></span> </div>
+                    <input type="submit" value="계산">
+                </form>
+            </article>
+        </section>
+    </div>
+</body>
+</html>
