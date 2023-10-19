@@ -1,0 +1,56 @@
+MVC 패턴
+  서블릿은 HTML을 처리할 때 상당히 많은 코드를 작성 , 
+  JSP는 자바코드사용에 어려움이 있음 
+  Requst -> 서블렛 (응답에 필요한 데이터 완성, 다른 객체들 연동, 상속 인터페이스활용 코드재사용) -> JSP(데이터출력, HRML코드활용, 브라우저로 전달할 최종결과 완성) ->Response
+  Model : 서블렛이 JSP에 필요한 데이터를 가공하는데 필요한 데이터를 제공
+  View : JSP
+  Contriller : 서블렛
+
+
+--계산기 컨트롤러 --
+package org.zerock.w1.calc;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebServlet(name="inputController", urlPatterns = "/calc/input")
+//urlPatterns : 처리해야하는 경로지정 ->/calc/input으로 들어오면 inputController서블릿이 실행
+public class InputController extends HttpServlet {
+
+    @Override
+    protected  void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+                    //doGet()재정의 : GET방식으로 들어오는 요청에 대해서만 처리
+        System.out.println("InputController...doGet...");
+
+        RequestDispatcher dispatcher = req.getRequestDispatcher("/WEB-INF/calc/input.jsp");
+        //서블릿에 전달된 요청을 다른쪽으로 전달 및 배포
+        dispatcher.forward(req,resp);
+    }
+}
+
+WEB-INF : 브라우저에서 jsp로 직접 호출이 불가능한 경로 
+
+PRG패턴(Post-Redirect-GET)
+  컨트롤러에 원하는 작업을 POST 방식으로 처리요청
+  POST방식을 컨트롤러에서 처리하고 브라우저는 다른 경로로 이동(GET)하라는 응답(Redirect)
+  브라우저는 GET 방식으로 이동
+
+와이어 프레임(wire frame) : 여러 페이지를 만들 때 이동이 많기 때문에 우선 설계를 통해서 어떤 흐름으로 동작하게 되는지 미리구성(목업도구 이용(Balsamiq Wireframes,Pencil Mokcup))
+  - 화면에 해당 페이지를 볼수있는 URL 명시 
+  - GET 방식으로 동작하고 눈에 보이는것을 가장먼저 구성
+  - POST 방식으로 처리되는 컨트롤러는 다른그림으로 표현 
+  - Redirect 되어 보여지는 경우 다른선으로 표현 
+    목록화면(GET) , 등록화면(GET), 등록화면(POST), 조회 화면(GET), 수정/삭제화면(GET), 수정(POST), 삭제(POST)
+  기능 - 동작방식 - 컨트롤러 - JSP
+  목록 - GET - TodoListController - list.jsp
+  등록(입력) - GET - TodoRegisterController - register.jsp
+  목록(처리) - POST - TodoRegisterController - Redirect
+  조회 - GET - TodoReadController - read.jsp
+  수정(입력) - GET - TodoModifyController - modify.jsp
+  수정(처리) - POST - TodoModifyController - Redirect
+  삭제(처리) - POST -TodoRemoveController - Redirect
