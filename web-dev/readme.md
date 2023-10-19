@@ -5,7 +5,9 @@
 1. 웹프로그래밍의 시작
     1. [인텔리제이셋팅](https://github.com/Malvin222/study/blob/b6803fcb139cf0768c53853664705e3fd9ac44eb/web-dev/setting.txt)
     2. [웹기본동작](https://github.com/Malvin222/study/blob/b6803fcb139cf0768c53853664705e3fd9ac44eb/web-dev/%EC%9B%B9%20%EA%B8%B0%EB%B3%B8%20%EB%8F%99%EC%9E%91)
-    3. [MVC 패턴](https://github.com/Malvin222/study/blob/b6803fcb139cf0768c53853664705e3fd9ac44eb/web-dev/WEB-MVC/WebMVC)
+    3. [MVC 패턴](https://github.com/Malvin222/study/tree/main/web-dev/WEB-MVC)
+    4. [HttpServlet](https://github.com/Malvin222/study/tree/main/web-dev/HttpServlet)
+    5. [Model](https://github.com/Malvin222/study/tree/main/web-dev/Model)
 2. a
    1. a 
 3. a
