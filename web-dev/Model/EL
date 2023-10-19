@@ -1,0 +1,25 @@
+EL(Expression Language)
+${}
+JSTL(JavaServer Pages Standard Tag Libarary) : JSP에서 동작하는 새로운 태그들의 묶음 (제어문이나 반복문, 선언문등을 처리 및 확장 가능)
+  build.gradle에 의존성 라이브라이 추가
+  지시자 : <%@ %>
+
+  JSTL을 이용하기 위해 설정 추가 
+  <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+  <c:forEach> : 반복문 (속성 var :사용될 변수이름 , item : List,Set,Map,Enumeration,Iterator 등의 컬렉션, begin/end : 반복의 시작 끝)
+    <c:forEach var="num" begin="1" end="10">
+        <li>${num}</li>
+    </c:forEach>
+  <c:if>, <c:choose>(내부에 <c:when test=> , <c:otherwise>)
+
+  <c:set> : 변수선언
+    <c:set var="target" value="5"></c:set>
+    <ul>
+        <c:forEach var="num" begin="1" end="10">
+            ${num}
+            <c:if test="${num == target}">
+                num is target
+            </c:if>
+        </c:forEach>
+    </ul>
