@@ -1,0 +1,28 @@
+초기설정 
+인텔리제이 - > 얼티메이트 버전 
+톰캣 9 버전 
+JAVA 11버턴 
+
+한글깨짐 오류 
+-Help -> Edit Custom VM Options 
+추가
+-Dfile.encoding=UTF-8
+-Dconsole.encoding=UTF-8
+
+프로젝트 경로 설정 
+상단 Tomcat - > Edit Configurations... -> Deployment
+기존 war 파일 삭제 - > Artifact (exploded)가 포함된 항목으로 등록 -> Aplication Context의 값을 '/'로 지정
+
+변경된 코드의 반영 (톰캣 재시작 최소화)
+Edit Configuration -> 
+VM option : -Dfile.encoding=UTF-8
+On Update action : Update classes and resources
+On frame deactivation : Update classes and resources
+
+자바 파일 반영 -> Deploy All
+
+서블릿 코드 작성 
+doGet() : 브라우저의 주소를 직접 변경해서 접근하는 경우 호출되는 메소드 
+PrintWriter : 브라우저쪽으로 출력 (System.out.println() 대체 )
+
+JSP 코드 작성
