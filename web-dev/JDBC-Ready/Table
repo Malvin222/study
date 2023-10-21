@@ -1,0 +1,28 @@
+Database 항목 - > New -> Query Console
+
+DDL(Data Definition Language) : 테이블 생성, 특정 객체 생성
+create table tbl_todo
+(
+    tno int auto_increment primary key,
+    title varchar(100) not null,
+    dueData date not null,
+    finished tinyint default 0
+);
+refresh -> 생성된 테이블 확인 
+
+DML(Data Manipulation Languaage) : 데이터 조작 (insert/update/delete)
+  데이터 insert
+    insert into  tbl_todo (title,dueData,finished)
+        values ('Test...','2022-12-31',1);
+  데이터 update
+    update  tbl_todo set finished = 0, title = 'Not Yet...' where tno = 3;
+  데이터 delete
+    delete from tbl_todo where tno>5;
+ DML과 select 차이 : DML(insert/update/delete)은 몇개의 데이터가 처리되었는지 숫자로 결과 반환 , select문은 데이터를 반환   
+  데이터 select 
+    select * from tbl_todo where tno<10;
+
+
+      
+    
+
