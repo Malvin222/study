@@ -1,0 +1,26 @@
+java.sql.Connection (Connection은 반드시 close()해야 다음 새로운 연결을 받음)
+  Statement나 PreparedStatement와 같이 SQL을 실행할 수 있는 객체 생성 
+  주된 코드 
+  Connection connection = PreparedStatement preparedStatement = connection.prepareStatement("select * from tbl_todo");
+
+java.sql.Statement/PreparaedStatemnet
+  JDBC에서 SQL을 데이터베이스로 보내줌
+    Statement와 차이점
+      Statement는 SQL문 내부에 모든 데이터를 같이전송
+      PreparedStatement : SQL을 미리 전달하고 나중에 데이터를 보내는 방식 (SQL injection 공격을 막음) 
+        setXXX(): setInt(),setString() 와 같이 다양한 타입에 맞게 데이터를 셋팅
+        executeUpdate() : DML을 실행하고 결과를 int로 반환 (몇개의 행(row)이 영향을 받았는가)
+        executeQuery() : 쿼리(select)를 실행할때 사용 ResultSet리턴타입 이용
+
+java.sql.ResultSet (close()를 해줘야함)
+  쿼리(select)를 실행했을 때, 데이터베이스에서 반환되는 데이터를 읽기위해서 ResultSet 인터페이스 사용
+  자바코드에서 데이터를 읽기 때문에 getInt(), getString()등의 메소드를 이용
+  next() :  데이터를 순차적으로 읽는 방식이기 때문에 next()를 이용해 다음행의 데이터를 읽을 수 있도록 이동  
+
+Connection Pool : 미리 Connection들을 생성해서 보관, 필요할때마다 꺼내씀 (데이터베이스와 연결에 걸리는 시간과 자원 졀약)
+DataSource : 인터페이스 (Connection Pool을 자바에서 API형태로 지원 - 커넥션풀을 이용하는 라이브러리는 모두 DataSource 인터페이스 구현)
+DAO(Data Access Object) : 데이터를 전문적으로 처리하는 객체, 일반적으로 데이터베이스의 접근과 처리를 전담하는 객체 (VO단위로 처리) -> JDBC프로그램을 작성한다는 의미는 DAO를 작성한다는 의미 
+VO(Value Object) 혹은 엔티티(Entity) : 객체지향 프로그램에서는 데이터를 객체라는 단위로 처리 (예를 들어 테이블의 한행(row)을 자바에서는 하나의 객체 )
+                                        데이터베이스에서 하나의 데이터를 '엔티티'라고하는데 이를 처리하기 위해서 테이블과 유사한 구조의 클래스를 만들어 객체로 처리 
+                                          -> 이때 만든 객체는 '값을 보관하는 용도'라는 의미에서 VO라고 함 (데이터베이스의 엔티티를 자바 객체로 표현), 데이터 자체를 의미하기 때문에 getter만 이용하는게 대부분
+DTO : 각 계층을 오고가는데 사용되는 택배상자와 비슷(getter/setter를 이용해서 데이터를 자유롭게 가공)
