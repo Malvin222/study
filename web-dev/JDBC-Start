@@ -1,0 +1,302 @@
+Lombok 라이브러리
+  getter/setter 및 사성상자함수 정의를 어노테이션을 추가하는것으로 대체
+  @Getter, @Setter, @Data : getter/setter 자동생성
+  @Tostring : toString() 메소드 자동생성
+  @EqualsAndHashCode : equals()/hashCode() 자동생성
+  @AllArgsConstructor, @NoArgsConstructor 생성자 자동성생
+  @Builder : 빌더 자동생성
+Lombok 라이브러리 추가
+  https://projectlombok.org/  -> install -> gradle -> build.gradle ->dependencies 항목 수정 -> 코끼리
+
+TodoVO 클래스 작성
+      package org.zerock.jdbcex.domain;
+    
+    import lombok.Builder;
+    import lombok.Getter;
+    import lombok.ToString;
+    
+    import java.time.LocalDate;
+    
+    @Getter  //VO는 주로 읽기전용
+    @Builder  // 객체 생성시 필더패턴 이용
+    @ToString 
+    public class TodoVO {
+    
+        private Long tno;
+    
+        private String tilte;
+    
+        private LocalDate dueDate;
+    
+        private boolean finished;
+    }
+
+HikariCP 설정 
+  https://github.com/brettwooldridge/HikariCP - > dowunload from here -> gradle -> implementation group: 'com.zaxxer', name: 'HikariCP', version: '5.0.1'
+  build.gradle -> dependencies 추가 -> 코끼리
+  테스트코드 작성
+            @Test
+            public  void testHikariCP() throws Exception{
+        
+                HikariConfig config = new HikariConfig();
+                config.setDriverClassName("org.mariadb.jdbc.Driver");
+                config.setJdbcUrl("jdbc:mariadb://localhost:3306/webdb");
+                config.setUsername("webuser");
+                config.setPassword("webuser");
+                config.addDataSourceProperty("cachePrepStmts", "true");
+                config.addDataSourceProperty("prepStmtCacheSize", "250");
+                config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+        
+                HikariDataSource ds =new HikariDataSource(config);
+                Connection connection = ds.getConnection();
+        
+                System.out.println(connection);
+        
+                connection.close();
+        
+            }
+
+dao 패키지 작성 
+      ConnectionUtil 클래스작성
+                    package org.zerock.jdbcex.dao;
+          
+          import com.zaxxer.hikari.HikariConfig;
+          import com.zaxxer.hikari.HikariDataSource;
+          
+          public enum ConnectionUtil {
+          
+              INSTANCE;
+          
+              private HikariDataSource ds;
+          
+              ConnectionUtil() {
+                  //히카리 데이터소스 구성
+                  HikariConfig config = new HikariConfig();
+                  config.setDriverClassName("org.mariadb.jdbc.Driver");
+                  config.setJdbcUrl("jdbc:mariadb://localhost:3306/webdb");
+                  config.setUsername("webuser");
+                  config.setPassword("webuser");
+                  config.addDataSourceProperty("cachePrepStmts", "true");
+                  config.addDataSourceProperty("prepStmtCacheSize", "250");
+                  config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+          
+                  ds = new HikariDataSource(config);
+              }
+              public Connection getConnection() throws  Exception{
+                    return ds.getConnection();
+            }
+          }
+      
+  TodoDAO 클래스 작성
+
+        package org.zerock.jdbcex.dao;
+        
+        import java.sql.Connection;
+        import java.sql.PreparedStatement;
+        import java.sql.ResultSet;
+        
+        public class TodoDAO {
+            public  String getTime(){
+        
+                String now = null;
+        
+                try(Connection connection = ConnectionUtil.INSTANCE.getConnection();
+                    PreparedStatement preparedStatement = connection.prepareStatement("select now()");
+        
+                    ResultSet resultSet = preparedStatement.executeQuery();
+                ) {
+                    resultSet.next();
+        
+                    now = resultSet.getString(1);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                return now;
+            }
+        }
+
+  DAO를 작성하면 항상 테스트 코드를 이용해서 동작 확인
+
+  TodoDAO Test 작성  
+      package org.zerock.dao;
+
+        import org.junit.jupiter.api.BeforeEach;
+        import org.junit.jupiter.api.Test;
+        import org.zerock.jdbcex.dao.TodoDAO;
+        
+        public class TodoDAOTest {
+        
+            private TodoDAO todoDAO;
+        
+            //ready() -> 모든 테스트전 todoDAO 타입의 객체 생성
+            @BeforeEach
+            public  void  ready(){
+                todoDAO = new TodoDAO();
+            }
+        
+            //testTime() ->TodoDAO에 작성한 getTime()정상 동작 확인
+            @Test
+            public  void testTime() throws  Exception{
+        
+                System.out.println(todoDAO.getTime() );
+            }
+        }
+
+  Lombok 의 @Cleanup : try-with-resource방식에서 더 깔끔한 코드 생성
+          public  String getTime2() throws  Exception{
+
+          @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+          @Cleanup PreparedStatement preparedStatement = connection.prepareStatement("select now()");
+          @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
+  
+          resultSet.next();
+  
+          String now = resultSet.getString(1);
+  
+          return now;
+        }
+
+  TodoDAO 등록 기능 구현
+          public void  insert(TodoVO vo) throws Exception{
+          String sql = "insert into tbl_todo (title, dueDate, finished) values(?,?,?)";
+  
+          @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+          @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(sql);
+  
+          preparedStatement.setString(1, vo.getTilte());
+          preparedStatement.setDate(2, Date.valueOf(vo.getDueDate()));
+          preparedStatement.setBoolean(3,vo.isFinished());
+  
+          //DML문 -> executeUpdate()
+          preparedStatement.executeUpdate();
+      }
+  TodoDAO 등록 기능 테스트
+        @Test
+        public void testInsert() throws Exception{
+        TodoVO todoVO = TodoVO.builder()
+                .title("Sample Title...")
+                .dueDate(LocalDate.of(2021,12,31))
+                .build();   //생성자와 달리 필요한 만큼만 데이터 세팅
+
+        todoDAO.insert(todoVO);
+    }
+
+TodoDAO 목록 기능 구현
+      public List<TodoVO> selectAll() throws  Exception{
+
+        String sql = "select * from tbl_todo";
+        @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+        @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
+
+        List<TodoVO> list = new ArrayList<>();
+        //ResultSet 각 행의 데이터를 TodoVO로 변환
+        while (resultSet.next()){
+            TodoVO vo =TodoVO.builder()
+                    .tno(resultSet.getLong("tno"))
+                    .title(resultSet.getString("title"))
+                    .dueDate(resultSet.getDate("dueDate").toLocalDate())
+                    .build();
+
+            list.add(vo);
+        }
+
+        return list;
+  TodoDAO 목록 기능 테스트
+        @Test
+        public void testList() throws Exception{
+
+        List<TodoVO> list = todoDAO.selectAll();
+        list.forEach(vo -> System.out.println(vo));
+    }
+
+  TodoDAO 목록 조회 기능 구현
+          public  TodoVO selectOne(Long tno) throws Exception{
+
+          String sql = "select * from tbl_todo where tno = ?";
+  
+          @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+          @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(sql);
+  
+          preparedStatement.setLong(1, tno);
+  
+          @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
+  
+          resultSet.next();   //쿼리 실행, 한 행만 실행(select one)
+          TodoVO vo = TodoVO.builder()
+                  .tno(resultSet.getLong("tno"))
+                  .title(resultSet.getString("title"))
+                  .dueDate(resultSet.getDate("dueDate").toLocalDate())
+                  .finished(resultSet.getBoolean("finished"))
+                  .build();
+          return vo;
+      }
+
+  TodoDAO 목록 조회 기능 테스트
+        @Test
+        public void testList() throws Exception{
+    
+            List<TodoVO> list = todoDAO.selectAll();
+            list.forEach(vo -> System.out.println(vo));
+        }
+  TodoDAO 목록 조회 기능 테스트
+          @Test
+          public  void testSelectOne() throws Exception{
+      
+              Long tno = 1L; //반드시 존재하는 번호 이용
+      
+              TodoVO vo = todoDAO.selectOne(tno);
+      
+              System.out.println(vo);
+          }
+
+  TodoDAO의 삭제/수정 기능 구현
+          public void deleteOne(Long tno) throws Exception{
+        
+          String sql = "delete from tbl_todo where tno = ?";
+          
+          @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+          @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(sql);
+          
+          preparedStatement.setLong(1,tno);
+          
+          preparedStatement.executeUpdate();
+      }
+          public  void updateOne(TodoVO todoVO) throws Exception{
+  
+          String sql = "update tbl_todo set title = ?, dueDate = ? , finished = ? where tno = ? ";
+  
+          @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+          @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(sql);
+  
+          preparedStatement.setString(1, todoVO.getTitle());
+          preparedStatement.setDate(2,Date.valueOf(todoVO.getDueDate()));
+          preparedStatement.setBoolean(3, todoVO.isFinished());
+          preparedStatement.setLong(4,todoVO.getTno());
+  
+          preparedStatement.executeUpdate();
+        }
+  TodoDAO 삭제/수정 기능 테스트
+              @Test
+              public void testDeleteOne() throws  Exception{
+          
+                  Long tno = 5L;
+          
+                  TodoVO todoVO = TodoVO.builder()
+                          .tno(5L)
+                          .build();
+          
+                  todoDAO.deleteOne(tno);
+              }
+            
+            @Test
+            public void testUpdateOne() throws  Exception{
+                TodoVO todoVO = TodoVO.builder()
+                        .tno(1L)
+                        .title("Sample Title...")
+                        .dueDate(LocalDate.of(2021,12,31))
+                        .finished(true)
+                        .build();
+                
+                todoDAO.updateOne(todoVO);
+            }
