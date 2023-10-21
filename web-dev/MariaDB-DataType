@@ -1,0 +1,33 @@
+[숫자형 데이터 타입]
+타입  -  용도  -  크기  -  설명
+tinyint - 매우 작은 정수 - 1byte - -128 ~ 127
+smallint - 	작은 정수 - 2byte - -32,768 ~ 2,767
+mediumint - 중간 크기의 정수 -3byte - -8,388,608 ~ 8,388,607
+int - 표준 정수 - 4byte -21억 ~ 21억
+bigint - 큰 정수 - 8byte - -900경 ~ 900경
+float - 단정도 부동 소수 -4byte - -3,40E+38 ~ 1.17E-38
+double - 배정도 부동소수 - 8byte - 	-1.22E-308 ~ 1.79E+308 
+decimal(m,n) - 고정소수 - m과n에 따라 다름 - 숫자 데이터지만 내부적으로 String 형태로 저장됨 최대 65자
+bit(n) - 비트필드 - m에따라 다름 - 1~64비트 표현 
+
+[날짜형 데이터타입]
+타입  -  형태  -  크기  -  설명
+date	-	'yyyy-mm-dd' - 3byte - 1001-01-01 ~ 9999-12-31
+datetime - 'yyyy-mm-dd hh:mm:ss' - 8byte - 	1000-01-01 00:00:00 ~  9999-12-31 23:59:59	
+timestamp	- 'yyyy-mm-dd hh:mm:ss' - 4byte - 	1970-01-01 00:00:00 ~ 2037
+time	- -838:59:59.000000 ~ 838:59:59.000000 - 3byte - 	-838:59:59.000000 ~ 838:59:59.000000
+year - yyyy 또는 yy - 	1byte - 	1901 ~ 2155
+
+[문자형 데이터타입]
+char(size)	1 ~ 255	고정 길이 문자열
+varchar(size)	1 ~ 65535	가변 길이 문자열
+binary(size)	1 ~ 255	고정 길이 이진문자열
+varbinary(size)	1 ~ 255	가별 길이 이진문자열
+tinyblob	1 ~ 255	이진 데이터
+blob(size)	1 ~ 65535	이진 데이터
+mediumblob	1 ~ 16777215	이진 데이터
+longblob	1~4294967295	최대 4GB 이진데이터
+tinytext(size)	1 ~ 255	최대길이 255 text값
+text(size)	1 ~ 65535	최대길이 65535 text값
+mediumtext(size)	1 ~ 16777215	최대길이 16777215 text값
+longtext(size)	1 ~ 4294967295	최대크기 4GB/최대길이 4,294,967,295 text값
