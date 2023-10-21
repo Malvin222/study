@@ -1,0 +1,76 @@
+설치 - https://mariadb.org/download/ MSI버전
+  use UTF8 default server's character set 체크
+DB생성 및 사용자 계정 추가
+  HeidiSQL 실행 (윈도우는 설치시 자동으로 설치)
+  신규 -> 세션이름(ROOT로 변경) -> 루트계정 접속
+  
+  데이터베이스(스키마 생성)
+  ROOT 우클릭 -> 새로생성 -> 데이터베이스
+
+  계정추가 및 권한추가
+    도구 -> 사용자 관리자 -> 추가 -> 호스트에서(H) : 모든곳에서 접근(%) -> 객체추가 -> DB지정 -> 권한 선택
+    파일 -> 세션관리자 -> 세션추가 ->사용자 및 암포 입력 -> 데이터베이스 지정
+
+  프로젝트생성 (jdbcex)
+    JavaEnterprise 
+    Web application
+    Gradle, org.zerock
+    오른쪽 가장자리 Database -> (+)버튼 MariaDB -> 유저 및 암호, 데이터베이스 입력 -> Dowunload driver files -> Test Connection
+
+  프로젝트 내 MariaDB 설정 
+    https://mvnrepository.com -> MariaDB Java Client ->Central 버전클릭 -> Gradle 또는 Gradle(Short) 내용 복사 
+    ->build.gradle -> dependencies 라이브러리 추가 -> Load Gradle Changes
+
+JDBC (Java Database Connectivity) 드라이버 : 데이터베이스와 자바프로그램 사이에서 네트워크 데이터를 처리
+JDBC 프로그램 : 네트워크를 통해서 DB와 연결, SQL을 전달 후 실행
+  작성순서 : DB와 연결 -> SQL작성 및 전송 -> DB가 보낸 결과를 받아서 처리 -> DB와 연결 종료
+
+테스트 프로그램 작성 (미리 실행가능 여부 확인)
+  test -> java -> org.zerock.dao 패키지 생성 -> ConnectTests 클래스 생성
+
+        package org.zerock.dao;
+        import org.junit.jupiter.api.Assertions;
+        import org.junit.jupiter.api.Test;
+        
+        public class ConnectTests {
+            //테스트코드(메소드) : 반드시 public으로 선언
+            @Test
+            public  void test1(){
+        
+                int v1 = 20;
+                int v2 = 20;
+                //두 변수의 내용이 같아야 테스트 성공
+                Assertions.assertEquals(v1,v2);
+            }
+        }
+    좌측 'Run' (테스트코드 실행)
+
+    testConnection() 작성
+          package org.zerock.dao;
+          import org.junit.jupiter.api.Assertions;
+          import org.junit.jupiter.api.Test;
+          import java.sql.Connection;
+          import java.sql.DriverManager;
+          
+          public class ConnectTests {
+          
+              @Test
+              public void testConnection() throws  Exception{
+                  //JDBC 드라이버 클래스를 메모리상 로딩(패키지명과 클래스명이 대소문까지 정확히 일치, JDBC드라이버 파일이 없는경우 예외발생)
+                  Class.forName("org.mariadb.jdbc.Driver");
+                  //java.sql 패키지의 connection 인터페이스 타입의 변수 (Connection은 데이터베이스와 네트워크 연결)  = 데이터베이스 내에 있는 여러정보들을 통해서 데이터베이스와 연결
+                  Connection connection = DriverManager.getConnection(
+                          //jdbc프로토콜 이용 //: 연결정보 / 연결하려는 데이터베비스 정보
+                          "jdbc:mariadb://localhost:3306/webdb",
+                          // 사용자 계정 및 패스워드
+                          "webuser",
+                          "webuser");
+                  //정상적으로 연결 되었다면 Connection 타입의 객체는 null이 아님
+                  Assertions.assertNotNull(connection);
+                  //DB와 연결 종료
+                  connection.close();
+          
+              }
+          }
+      테스트 실행
+    
