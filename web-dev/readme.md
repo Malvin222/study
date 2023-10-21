@@ -8,8 +8,9 @@
     3. [MVC 패턴](https://github.com/Malvin222/study/tree/main/web-dev/WEB-MVC)
     4. [HttpServlet](https://github.com/Malvin222/study/tree/main/web-dev/HttpServlet)
     5. [Model](https://github.com/Malvin222/study/tree/main/web-dev/Model)
-2. a
-   1. a 
+2. 웹과 데이터베이스
+   1. [JDBC 프로그래밍 준비](https://github.com/Malvin222/study/tree/main/web-dev/JDBC-Ready)
+   2. [프로잭트 내 JDBC구현]()
 3. a
    1. a
 4. a
