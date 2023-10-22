@@ -1,0 +1,103 @@
+TodoDTD 패키지 생성(Lombok을 이용하는것이 더 좋음)
+  VO는 일반적으로 getter 만을 이용해서 읽기전용, DTO는 getter/setter/toString/equals/hashCode  
+    @Builder
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class TodoDTO {
+        
+        private Long tno;
+        
+        private  String title;
+        
+        private LocalDate dueDate;
+        
+        private  boolean finished;
+        
+    }
+
+builde.gradle파일 - modelmapper 라이브러리 추가
+ implementation group: 'org.modelmapper', name:'modelmapper', version:'3.0.0'
+
+TodoVO 어노테이션 추가 (ModelMapper 설정 변경해서 사용)
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public class TodoVO {
+    
+        private Long tno;
+    
+        private String title;
+    
+        private LocalDate dueDate;
+    
+        private boolean finished;
+    }
+
+MapperUtil enum 작성
+        public enum MapperUtil {
+          INSTANCE;
+      
+          private  ModelMapper modelMapper;
+      
+          MapperUtil() {
+              this.modelMapper = new ModelMapper();
+              this.modelMapper.getConfiguration()  //private로 선원된 필드도 접근가능
+                      .setFieldMatchingEnabled(true)
+                      .setFieldAccessLevel(Configuration.AccessLevel.PRIVATE)
+                      .setMatchingStrategy(MatchingStrategies. STRICT);
+      
+          }
+      
+          public ModelMapper get(){
+              return  modelMapper;
+          }
+      }
+
+TodoService와 ModelMapper 테스트
+
+  TodoService class enum 작성
+    public enum TodoService {
+    INSTANCE;
+    
+    private TodoDAO dao;
+    private ModelMapper modelMapper;
+    
+    TodoService(){
+        dao = new TodoDAO();
+        modelMapper = MapperUtil.INSTANCE.get();
+    }
+                  //register() : TodoDTO를 파라미터로 받아서 TodoVO로 변환하는 과정 필요
+    public  void  register(TodoDTO todoDTO) throws  Exception{
+
+        TodoVO todoVO = modelMapper.map(todoDTO, TodoVO.class);
+
+        System.out.println("todoVO:"+ todoVO);
+        
+        dao.insert(todoVO); //int를 반환하므로 이를 이용해서 예외처리도 가능
+      }
+  }
+
+  테스트 코드 작성 (service -> TodoServiceTest)
+      public class TodoServiceTests {
+  
+      private TodoService todoService;
+      
+      @BeforeEach
+      public void ready(){
+          todoService = TodoService.INSTANCE;
+      }
+  
+      @Test
+      public void testRegister() throws  Exception{
+  
+          TodoDTO todoDTO = TodoDTO.builder()
+                  .title("JDBC Test Title")
+                  .dueDate(LocalDate.now())
+                  .build();
+  
+          todoService.register(todoDTO);
+      }
+  }
