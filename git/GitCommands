@@ -7,9 +7,9 @@ $ git rm --cached -> 해당 파일을 스테이지 영역에서 제거
 
 $ git status -> 스테이지 영역에 커밋할 준비가 된 파일 확인
 
-$ git commit -> 변경사항 커밋
+$ commit -m " 파일 추가"  -> 변경사항 커밋
 
-$ git push -> 원격 저장소로 푸시 (github 연동)
+$ git push -u origin main -> 원격 저장소로 푸시 (github 연동)
 
 $ git pull -> 원격저장소에서 최신 변경사항을 가져옴
 
