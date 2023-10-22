@@ -1,0 +1,80 @@
+Log4j2 :  많은 System.out.println()의 해결
+  Appender(어펜더) : 로그를 어떤 방식으로 기록할 것인지의미 (콘솔창에 출력, 파일로 출력  System.out.println() -> console Appender)
+  lever(레벨) : 중요도 (해당 레벨 이상의 로그들만 출력 -> 개발할때는 로그레벨을 낮게, 운영할때는 중요한 레벨들만 기록)
+    TRACE -> DEBUG -> INFO -> WARN -> ERROR -> FATAL (개발할때는 Info 이하의 레벨이용, 운영할때는 Error나 Warn 이상 사용)
+
+build.gradle 추가
+    implementation group: 'org.apache.logging.log4j', name:'log4j-core', version:'2.17.2'
+    implementation group: 'org.apache.logging.log4j', name:'log4j-api', version:'2.17.2'
+    implementation group: 'org.apache.logging.log4j', name:'log4j-impl', version:'2.17.2'
+
+log4j2.xml : Appender 이나 로그 레벨 설정파일
+  log4j2.xml 생성 (https://logging.apache.org/log4j/2.x/manual/configuration.html)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Configuration status="WARN">
+          <Appenders>
+              <Console name="Console" target="SYSTEM_OUT">
+                  <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+              </Console>
+          </Appenders>
+          <Loggers>
+              <Root level="info">
+                  <AppenderRef ref="Console"/>
+              </Root>
+          </Loggers>
+      </Configuration>
+
+@Log4j2 어노테이션
+    TodoService 파일 수정
+          @Log4j2
+          public enum TodoService {
+              INSTANCE;
+          
+              private TodoDAO dao;
+              private ModelMapper modelMapper;
+          
+              TodoService(){
+                  dao = new TodoDAO();
+                  modelMapper = MapperUtil.INSTANCE.get();
+              }
+          
+              public  void  register(TodoDTO todoDTO) throws  Exception{
+          
+                  TodoVO todoVO = modelMapper.map(todoDTO, TodoVO.class);
+          
+                  //System.out.println("todoVO:"+ todoVO);
+                  log.info(todoVO);
+          
+                  dao.insert(todoVO); //int를 반환하므로 이를 이용해서 예외처리도 가능
+              }
+          }
+
+테스트 환경에서 @Log4j2사용 
+  build.gradle 추가  
+       testCompileOnly grop: 'org.projectlombok', name: 'lombok', version:'1.18.24'
+       testAnnotationProcessor grop :'org.projectlombok', name : 'lombok', version:'1.18.24'
+  TodoServiceTests 수정
+      @Log4j2
+      public class TodoServiceTests {
+      
+          private TodoService todoService;
+      
+          @BeforeEach
+          public void ready(){
+              todoService = TodoService.INSTANCE;
+          }
+      
+          @Test
+          public void testRegister() throws  Exception{
+      
+              TodoDTO todoDTO = TodoDTO.builder()
+                      .title("JDBC Test Title")
+                      .dueDate(LocalDate.now())
+                      .build();
+      
+              log.info("----------------------------"); //테스트코드의 Lof4j2 설정확인
+              log.info(todoDTO);
+      
+              todoService.register(todoDTO);
+          }
+          
