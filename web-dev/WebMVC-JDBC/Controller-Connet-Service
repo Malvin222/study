@@ -1,0 +1,330 @@
+프로젝트 설정 변경 
+    Tomcat 설정변경 -> Deployment -> Gradle exploded -> Application context : /  -> Update action : Update classes and resources -> frame : Update classes and resources 
+  build.gradle 수정  
+    implementation group : 'jstl', name: 'jstl', version: '1.2'
+
+=========CRUD=========
+controller 패키지 추가
+==========목록==========
+    목록기능 구현
+      TodoListController 추가
+          @WebServlet(name="todoListController", value = "/todo/list")
+          @Log4j2
+          public class TodoListController extends HttpServlet {
+              private TodoService todoService = TodoService.INSTANCE;
+              
+              @Override
+              protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws  SecurityException, IOException{
+                  
+                  log.info("todo List.......................");
+      }
+      TodoService listAll() 추가
+            public List<TodoDTO> listAll() throws  Exception{
+        
+            List<TodoVO> voList = dao.selectAll();
+            
+            log.info("voList...............");
+            
+            log.info(voList);
+            
+            List<TodoDTO> dtoList = voList.stream()
+                    .map( vo-> modelMapper.map(vo,TodoDTO.class))
+                    .collect(Collectors.toList());
+            
+            return dtoList;
+          }
+
+    TodoListController 수정 ( setAttribute()이용 -> TodoService 객체가 반환되는 데이터 저장, RequestDispatcher를 이용해서 JSP로 전달)
+                  try{
+                  List<TodoDTO> dtoList = todoService.listAll();
+                  req.setAttribute("dtoList", dtoList);
+                  req.getRequestDispatcher("/WEB-INF/todo/list.jsp").forward(req,resp);
+              } catch (Exception e){
+                  log.error(e.getMessage());
+                  throw new ServletException("list error");
+              }
+          }
+
+  jsp 파일 작성
+      <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+      <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+      <html>
+      <head>
+          <title>Todo List</title>
+      </head>
+      <body>
+          <h1>Todo List</h1>  
+      <ul>
+          <c:forEach items="${dtoList}" var="dto">
+              <li>${dto}</li>
+          </c:forEach>
+      </ul>
+      </body>
+      </html>
+==========등록==========
+등록 기능 구현
+    TodoService -> register() 메소드  
+          public  void  register(TodoDTO todoDTO) throws  Exception{
+
+            TodoVO todoVO = modelMapper.map(todoDTO, TodoVO.class);
+    
+            //System.out.println("todoVO:"+ todoVO);
+            log.info(todoVO);
+    
+            dao.insert(todoVO); //int를 반환하므로 이를 이용해서 예외처리도 가능
+        }
+    TodoRegisterController 작성
+      @WebServlet(name="todoRegisterController", value = "/todo/register")
+@Log4j2
+public class TodoRegisterController extends HttpServlet{
+
+    private TodoService todoService = TodoService.INSTANCE;
+    private final DateTimeFormatter DATEFORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        log.info("/todo/regisert GET ..........");
+        req.getRequestDispatcher("/WEB-INF/todo/register.jsp").forward(req, resp);
+    }
+    
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+
+        TodoDTO todoDTO = TodoDTO.builder()
+                .title(req.getParameter("title"))
+                .dueDate(LocalDate.parse(req.getParameter("dueDate"),DATEFORMATTER))
+                .build();
+        
+                log.info("/todo/register POST...");
+                log.info(todoDTO);
+                try{
+                    todoService.register(todoDTO);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                resp.sendRedirect("/todo/list");
+            }
+        }
+
+  등록화면 jsp 작성
+      <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+      <html>
+      <head>
+          <title>Title</title>
+      </head>
+      <body>
+          <form action="/todo/register" method="post">
+              <div>
+                  <input type="text" name="title" placeholder="INSERT TITLE">
+              </div>
+              <div>
+                  <input type="date" name="dueDate">
+              </div>
+              <div>
+                  <button type="reset">RESET</button>
+                  <button type="submit">REGISTER</button>
+              </div>
+          </form>
+      </body>
+      </html>
+
+==========조회==========
+  TodoService get() 메소드 추가
+          public TodoDTO get(Long tno) throws Exception{
+        
+              log.info("tno:" + tno);
+              TodoVO todoVO = dao.selectOne(tno);
+              TodoDTO todoDTO = modelMapper.map(todoVO, TodoDTO.class);
+              return  todoDTO;
+          }
+
+  TodoReadController 추가
+      @WebServlet(name="todoReadController", value = "/todo/read")
+      @Log4j2
+      public class TodoReadController extends HttpServlet {
+      
+          private TodoService todoService = TodoService.INSTANCE;
+      
+          @Override
+          protected void  doGet(HttpServletRequest req, HttpServletResponse resp) throws SecurityException, IOException, ServletException {
+      
+              try {
+                  Long tno = Long.parseLong(req.getParameter("tno"));
+      
+                  TodoDTO todoDTO = todoService.get(tno);
+      
+                  //데이터 담기
+                  req.setAttribute("dto", todoDTO);
+      
+                  req.getRequestDispatcher("/WEB-INF/todo/read.jsp").forward(req, resp);
+              }catch (Exception e){
+                  log.error(e.getMessage());
+                  throw new ServletException("read error");
+              }
+          }
+      }
+
+  Read.jsp 작성
+      <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+      <html>
+      <head>
+          <title>Todo Read</title>
+      </head>
+      <body>
+          <div>
+              <input type="text" name="tno" value="${dto.tno}" readonly>
+          </div>
+          <div>
+              <input type="text" name="title" value="${dto.title}" readonly>
+          </div>
+          <div>
+              <input type="date" name="dueDate" value="${dto.dueDate}">
+          </div>
+          <div>
+              <input type="checkbox" name="finished" ${dto.finished ? "checked" : ""} readonly>
+          </div>
+          <div>
+              <a href="/todo/modify?tno=${dto.tno}">Modify/Remove</a>
+              <a href="/todo/list"></a>
+          </div>
+      </body>
+      </html>
+
+  list.jsp 수정
+      <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+      <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+      <html>
+      <head>
+          <title>Todo List</title>
+      </head>
+      <body>
+          <h1>Todo List</h1>
+      
+      <ul>
+          <c:forEach items="${dtoList}" var="dto">
+              <li>
+                  <span><a href="/todo/read?tno=${dto.tno}">${dto.tno}</a> </span>
+                  <span>${dto.title}</span>
+                  <span>${dto.dueDate}</span>
+                  <span>${dto.finished? "DONE": "NOT YET"}</span>
+              </li>
+          </c:forEach>
+      </ul>
+      </body>
+      </html>
+
+==========수정/삭제 기능==========
+TodoService modify() 메소드 추가
+        public void modify(TodoDTO todoDTO) throws  Exception{
+        
+        log.info("todoDTO:" +todoDTO);
+        
+        TodoVO todoVO = modelMapper.map(todoDTO, TodoVO.class);
+        
+        dao.updateOne(todoVO);
+        }
+
+TodoModifyController 추가 작성
+      @WebServlet(name="todoModifyController", value = "/todo/modify")
+      @Log4j2
+      public class TodoModifyController extends HttpServlet {
+          
+          private TodoService todoService = TodoService.INSTANCE;
+          private final DateTimeFormatter DATEFORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+          
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws SecurityException, IOException, ServletException {
+              
+              try{
+                  Long tno = Long.parseLong(req.getParameter("tno"));
+                  TodoDTO todoDTO = todoService.get(tno);
+                  //데이터담기
+                  req.setAttribute("dto", todoDTO);
+                  req.getRequestDispatcher("/WEB-INF/todo/modify.jsp").forward(req, resp);
+              }catch (Exception e){
+                  log.error(e.getMessage());
+                  throw new ServletException("modify get... error");
+              }
+          }
+
+modify.jsp 작성
+
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>Title</title>
+    </head>
+    <body>
+        <form id="form1" action="/todo/modify" method="post">
+            <div>
+                <input type="text" name="tno" value="${dto.tno}" readonly>
+            </div>        <div>
+                <input type="text" name="title" value="${dto.title}">
+            </div>
+            <div>
+                <input type="date" name="dueDate" value="${dto.dueDate}">
+            </div>
+            <div>
+                <input type="checkbox" name="finished" ${dto.finished ? "checked": ""}>
+            </div>
+            <div>
+                <button type="submit">Modify</button>
+            </div>
+        </form>
+    
+        <form id="form2" action="/todo/remove" method="post">
+            <input type="hidden" name="tno" value="${dto.tno}" readonly>
+            <div>
+                <button type="submit">Remove</button>
+            </div>
+        </form>
+    </body>
+    </html>
+  
+TodoModifyController 추가 작성
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            String finishedStr = req.getParameter("finished");
+    
+            TodoDTO todoDTO = TodoDTO.builder()
+                    .tno(Long.parseLong(req.getParameter("tno")))
+                    .title(req.getParameter("title"))
+                    .dueDate(LocalDate.parse(req.getParameter("dueDate"),DATEFORMATTER))
+                    .finished( finishedStr != null && finishedStr.equals("on"))
+                    .build();
+    
+            log.info("/todo/modify POST...");
+            log.info(todoDTO);
+            try{
+                todoService.modify(todoDTO);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            resp.sendRedirect("/todo/list");
+        }
+
+TodoRemoveController 작성
+      @WebServlet(name="todoRemoveController", value="/todo/remove")
+      @Log4j2
+      public class TodoRemoveController extends HttpServlet {
+          
+          private TodoService todoService =TodoService.INSTANCE;
+      
+          @Override
+          protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            
+              Long tno = Long.parseLong(req.getParameter("tno"));
+              log.info("tno: " +tno);
+              
+              try{
+                  todoService.remove(tno);
+              } catch (Exception e){
+                  log.error(e.getMessage());
+                  throw new ServletException("read error");
+              }
+              resp.sendRedirect("/todo/list");
+          }
+      }
+    
+
