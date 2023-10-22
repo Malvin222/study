@@ -11,6 +11,7 @@
 2. 웹과 데이터베이스
    1. [JDBC 프로그래밍 준비](https://github.com/Malvin222/study/tree/main/web-dev/JDBC-Ready)
    2. [프로잭트 내 JDBC구현](https://github.com/Malvin222/study/tree/main/web-dev/JDBC-Start)
+   3. [웹 MVC와 JDBC의 결합](https://github.com/Malvin222/study/tree/main/web-dev/WebMVC-JDBC)
 3. a
    1. a
 4. a
