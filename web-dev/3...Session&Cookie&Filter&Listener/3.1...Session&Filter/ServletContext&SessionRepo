@@ -1,0 +1,21 @@
+ServletContex(서블릿 컨텍스트)
+    하나의 톰캣은 여러개의 웹 애플리케이션 실행가능
+    각각의 웹 애플리케이션이 자신만이 사용하는 고유의 메모리 영역을 하나 생성해서 이 공간에 서블릿이나 JSP등을 인스턴스로 만들어 제공하는 영역
+    기본적으로 키(key)와 값(value)을 보관하는 구조 -> JSESSIONID (톰캣에서 키가 되는 역할)
+    브라우저가 가지는 JSSESSIONID 쿠키의 값을 키로 보관
+      -> 쿠키가 만들어 질때마다 메모리 공간을 차지 (주기적으로 저장소를 조사하면서 사용하지 않는 키값을 정리)
+
+Session Repository(세션 저장소)
+    각각의 웹 애플리케이션을 생성할때 톰캣이 발행하는 쿠키들을 관리하기 위한 메모리 영역
+
+세션을 통한 상태유지 메커니즘
+    HttpServletRequest의 getSession() 메소드를 실행하면 JSSESSIONID 쿠키가 요청할때 존재하는지 확인 후 새로운 값을 만들어 저장소에 보관
+    JSSESSIONID값의 공간에 로그인정보 저장 -> 이를 이용해서 사용자의 로그인 파악
+    getSession() 메소드를 이용해서 JSSESSIONID의 공간에 접근
+
+w2 프로젝트 생성후 jdbcex 기존 프로젝트 src 복사 및 패키지 변경
+
+getSession()
+    HttpServletRequest의 getSession()
+      JSSESSIONID가 없는경우 : 새로운 공간을 만들고 접근할 수 있는 객체를 반환
+      JSSESSIONID가 있는경우 : 할당된 공간을 찾고 접근할 수 있는 객체를 반환
