@@ -1,0 +1,143 @@
+테이블 생성 및 데이터 입력
+
+create table tbl_member(
+    mid varchar(50) primary key ,
+    mpw varchar(50) not null,
+    mname varchar(100) not null
+);
+
+insert into  tbl_member(mid, mpw, mname) values ('user00','1111','사용자0');
+insert into  tbl_member(mid, mpw, mname) values ('user01','1111','사용자1');
+insert into  tbl_member(mid, mpw, mname) values ('user02','1111','사용자2');
+
+select * from tbl_member where mid='user00' and mpw = '1111';
+
+MemberVO 작성
+
+  @Getter
+  @ToString
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public class MemberVO {
+      
+      private String mid;
+      private String mpw;
+      private String mname;
+  }
+
+MemberDAO 작성
+    public class MemberDAO {
+
+    public MemberVO getWithPassword(String mid, String mpw) throws Exception{
+        String query ="select mid, mpw, mname from tbl_member where mid = ? and mpw = ?";
+
+        MemberVO memberVO = null;
+
+        @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+        @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1,mid);
+        preparedStatement.setString(2,mpw);
+
+        @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
+
+        resultSet.next();
+
+        memberVO = MemberVO.builder()
+                .mid(resultSet.getString(1))
+                .mpw(resultSet.getString(2))
+                .mname(resultSet.getString(3))
+                .build();
+
+        return  memberVO;
+    }
+}
+
+memberDTO 작성
+  @Data
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public class MemberDTO {
+      
+      private String mid;
+      private String mpw;
+      private String mname;
+  }
+
+memberService 작성
+  @Log4j2
+  public enum MemberService {
+      INSTANCE;
+  
+      private MemberDAO dao;
+      private ModelMapper modelMapper;
+  
+      MemberService() {
+  
+          dao = new MemberDAO();
+          modelMapper = MapperUtil.INSTANCE.get();
+      }
+      // 로그인 메소드 작성
+      public MemberDTO login(String mid, String mpw) throws Exception{
+
+      MemberVO vo =dao.getWithPassword(mid, mpw);
+
+      MemberDTO memberDTO = modelMapper.map(vo, MemberDTO.class);
+      
+      return memberDTO;
+
+LoginController -> doPost 수정
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            log.info("login post......");
+    
+            String mid = req.getParameter("mid");
+            String mpw = req.getParameter("mpw");
+    
+            try{
+                MemberDTO memberDTO = MemberService.INSTANCE.login(mid, mpw);
+                HttpSession session = req.getSession();
+                session.setAttribute("loginInfo", memberDTO);
+                resp.sendRedirect("/todo/list");
+            } catch (Exception e){
+                resp.sendRedirect("/login?result=error");
+            }
+    //        String str = mid+mpw;
+    //
+    //        HttpSession session = req.getSession();
+    //                //setAttribute()를 사용자 공간에 loginInfo 라는 이름으로 보관
+    //        session.setAttribute("loginInfo", str);
+    //
+    //        resp.sendRedirect("/todo/list");
+        }
+    }
+  }
+
+login.jsp 수정
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+    <html>
+    <head>
+        <title>Title</title>
+    </head>
+    <body>
+        <c:if test="${param.result == 'error'}">
+            <h1>로그인 에러</h1>
+        </c:if>
+        
+        <form action="/login" method="post">
+            <input type="text" name="mid">
+            <input type="text" name="mpw">
+            <button type="submit">LOGIN</button>
+        </form>
+    </body>
+    </html>
+
+EL스코프 : setAttribute()로 되어있는 데이터를 찾을 때 사용
+  Page Scope: JSP에서 EL을 이용해 <c:set>으로 저장한변수
+  Request Scope: HttpServletRequest에 setAttribute()로 저장한변수
+  Session Scope: HttpSession을 이용해서 setAttribute()로 저장한변수
+  Appication Scope: ServletContext를 이용해서 setAttribute()로 저장한변수
+
+list.jsp 추가
