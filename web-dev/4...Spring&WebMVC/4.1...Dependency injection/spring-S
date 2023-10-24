@@ -6,3 +6,75 @@ Spring : 경량화 프레임워크 목표
 의존성 주입 : 하나의 객체가 자신이 해야 하는 일을 하기 위해서 다른 객체의 도움이 필수적인 관계 
     모든 Controller -> Service에 의존
 스프링 프레임워크 : 다양한 방식으로 필요한 객체를 찾아서 XML설정, 자바 설정 이용
+
+프로젝트 생성 springex
+스프링 라이브러리 추가
+    implementation group: 'org.springframework', name: 'spring-core', version: '5.3.6'
+    implementation group: 'org.springframework', name: 'spring-context', version: '5.3.6'
+    implementation group: 'org.springframework', name: 'spring-test', version: '5.3.6'
+Lombok 라이브러리 추가
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+Log4j2 라이브러리 추가
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.17.2'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.17.2'
+log4j2.xml 추가
+      <?xml version="1.0" encoding="UTF-8" ?>
+      
+      <configuration status="INFOP">
+          <Appenders>
+              <Console name="console" target="SYSTEM_OUT">
+                  <PatternLayout charset="UTF-8" pattern="%d{hh:mm:ss} %5p [%c] %m%n"/>
+              </Console>
+          </Appenders>
+          
+          <loggers>
+              <logger name="org.springframework" leve="INFO" additivity="false">
+                  <appender-ref ref="console" />
+              </logger>
+              
+              <logger name="org.zerock" level="INFO" additivity="false">
+                  <appender-ref ref="console" />
+              </logger>
+              
+              <root level="INFO" additivity="false">
+                  <AppenderRef ref="console" />
+              </root>
+          </loggers>
+          
+      </configuration>
+JSTL 라이브러리 추가
+   implementation group: 'jstl', name: 'jstl', version: '1.2'
+
+설정파일 추가 WEB-INF -> XML COn... -> Spring con... 
+root-context.xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <beans xmlns="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+      
+          <bean class="org.zerock.springex.sample.SampleDAO"></bean>
+      
+          <bean class="org.zerock.springex.sample.SampleService"></bean>
+      
+      </beans>
+
+테스트 클래스 추가
+SampleTests
+      @Log4j2
+      @ExtendWith(SpringExtension.class)
+      @ContextConfiguration(locations = "file:src/main/webapp/WEB-INF/root-context.xml")
+      public class SampleTests {
+          //@Autowired : 스프링에서 사용하는 의존성 주입관련 어노테이션
+          @Autowired
+          private SampleService sampleService;
+          
+          @Test
+          public void testService1(){
+              log.info(sampleService);
+              Assertions.assertNotNull(sampleService);
+          }
+      }
