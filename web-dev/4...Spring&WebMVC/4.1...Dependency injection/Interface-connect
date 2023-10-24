@@ -1,0 +1,42 @@
+SampleDAO 인터페이스로 변경
+  public interface SampleDAO {
+  }
+
+SampleDAOImpl 작성
+@Repository
+public class SampleDAOImpl implements SampleDAO{
+}
+
+느슨한결합 : 객체와 객체의 의존관계의 실제 객체를 몰라도 가는하게 하는 방식
+  EvenSampleDAOImpl 작성 (SampleDAO를 다른객체로 변경)
+    @Repository
+    @Primary
+    public class EvenSampleDAOImpl implements SampleDAO{
+    }
+
+@Qualifier
+  -> lombok.config 작성 : lombok.copyableAnnotations += org.springframework.beans.factory.annotation.Qualifier
+
+SampleDAOImpl 변경 
+    @Repository
+    @Qualifier("normal")
+    public class SampleDAOImpl implements SampleDAO{
+    }
+EventSampleDAOImpl 변경
+  @Repository
+  @Qualifier("event")
+  public class EventSampleDAOImpl implements SampleDAO{
+  }
+SampleService 변경
+  @Service
+  @ToString
+  @RequiredArgsConstructor
+  public class SampleService {
+      
+      @Qualifier("normal")
+      private final SampleDAO sampleDAO;
+  }
+
+스프링 Bean으로 지정되는 객체 : 핵심 배역을 하는 객체 (DTO나 VO는 데이터에 중점을 두고 설계-> Bean으로 등록되지 않음)
+Jar 파일로 추가되는 클래스 객체 : XML에서 bean으로 처리 
+직접 작성되는 클래스 : 어노테이션
