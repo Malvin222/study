@@ -1,0 +1,96 @@
+Observer패턴 : 특정한 변화를 '구독'하는 객체들을 보관하고 있다가 변화가 발생하면 구독 객체들을 실행
+서블릿 API : 여러 이벤트에 맞는 리스너들을 인터페이스로 정의  
+    
+    해당 웹 애플리케이션이 시작되거나 종료될 때 특정 작업을 수행
+    HttpSession에 특정한 작업에 대한 감시와 처리
+    HttpServletRequest에 특정한 작업에 대한 감시와 처리
+
+ServletContextListener : 프로젝트가 실행되자마자 실행되었으면 하는 작업을 위해 사용
+
+listener 패키지 생성 -> W2AppListener 클래스 생성
+  @WebListener
+  @Log4j2
+  public class W2AppListener implements ServletContextListener {
+      
+      @Override
+      public void contextInitialized(ServletContextEvent sce){
+  
+          log.info("---------init----------------------");
+          log.info("---------init----------------------");
+          log.info("---------init----------------------");
+  
+          ServletContext servletContext = sce.getServletContext();
+  
+          servletContext.setAttribute("appName","W2");
+      }
+  
+      @Override
+      public void contextDestroyed(ServletContextEvent sce) {
+          
+          log.info("---------destroy----------------------");
+          log.info("---------destroy----------------------");
+          log.info("---------destroy----------------------");
+      }
+  }
+
+ServletContextEvent 와 ServletContext
+contextInitialized()와 contextDestroyed()에 ServletContextEvent라는 객체가 전달
+ServletContext : 웹 애플리케이션 내 모든 자원들을 같이 사용하는 공간 -> 컨트롤러나 JSP에서 활용
+    setAttribute()를 이용해서 원하는 이름으로 객체 보관
+
+
+TodoListController 수정
+    @WebServlet(name="todoListController", value = "/todo/list")
+    @Log4j2
+    public class TodoListController extends HttpServlet {
+        private TodoService todoService = TodoService.INSTANCE;
+    
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws SecurityException, IOException, ServletException {
+    
+            log.info("todo List.......................");
+    
+            ServletContext servletContext = req.getServletContext();
+            
+            log.info("appName: " +servletContext.getAttribute("appName"));
+            
+            try{
+                List<TodoDTO> dtoList = todoService.listAll();
+                req.setAttribute("dtoList", dtoList);
+                req.getRequestDispatcher("/WEB-INF/todo/list.jsp").forward(req,resp);
+            } catch (Exception e){
+                log.error(e.getMessage());
+                throw new ServletException("list error");
+            }
+        }
+    }
+
+list.jsp
+    <body>
+    <h1>Todo List</h1>
+
+    <h2>${appName}</h2>
+    <h2>${loginInfo}</h2>
+    <h3>${loginInfo.mname}</h3>
+
+LoginListener 작성
+  @WebListener
+  @Log4j2
+  public class LoginListener implements HttpSessionAttributeListener {
+  
+      @Override
+      public void attributeAdded(HttpSessionBindingEvent event){
+  
+          String name = event.getName();
+  
+          Object obj = event.getValue();
+  
+          if(name.equals("loginInfo")){
+              log.info("A user logined.............");
+              log.info(obj);
+          }
+      }
+  }
+
+  HttpSessionAttributeListener : attributeAdded, attributeRemoved() ,attributeReplaced 이용가능
+  
