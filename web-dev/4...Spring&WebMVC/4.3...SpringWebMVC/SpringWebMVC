@@ -1,0 +1,5 @@
+SpringMVC
+  Front-Contriller 패텅을 이용 : 모든 흐름의 사전/사후 처리 가능 (@Controller)
+  어노테이션 활용하여 최소한의 코드로 많은 처리 가능
+  HttpServletRequest/HttpServletRespones를 이용하지 않아도 될 만큼 추상화된 방식으로 개발
+  
