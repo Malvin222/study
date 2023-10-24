@@ -1,0 +1,46 @@
+Filter : 특정한 서블릿이나 JSP등에 도달하는 과정에서 필터링하는 역할(서블릿 API의 객체) -> @WebFilter
+
+Filter 패키지 작성 -> LoginCheckFilter 작성 
+                              // /todo/...로 시작 하는 모든경로에 대해서 필터링 시도
+                @WebFilter(urlPatterns = {"/todo/*"})
+                @Log4j2
+                public class LoginCheckFilter implements Filter {
+                
+                    @Override
+                    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+                
+                        log.info("Login check filter....");
+                
+                        HttpServletRequest req = (HttpServletRequest)request;
+                        HttpServletResponse resp = (HttpServletResponse)response;
+                
+                        HttpSession session = req.getSession();
+                        
+                        if(session.getAttribute("loginInfo") == null) {
+                
+                            resp.sendRedirect("/login");
+                
+                            return;
+                        }
+                        chain.doFilter(request,response);
+                    }
+                }
+
+UTF-8 처리 필터 : /todo/register를 통해서 전달되는 문자열은 한글이 깨진 상태 -> setCharacterEncoding("UTF-8")
+UTF8Filter 클래스 작성
+    @WebFilter(urlPatterns = {"/*"})
+    @Log4j2
+    public class UTF8Filter implements Filter {
+    
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    
+            log.info("UTF filter.....");
+    
+            HttpServletRequest req = (HttpServletRequest) request;
+    
+            req.setCharacterEncoding("UTF-8");
+    
+            chain.doFilter(request, response);
+        }
+    }
