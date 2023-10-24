@@ -1,0 +1,79 @@
+로그인 체크  
+    사용자가 로그인에 성공하면 HttpSessiong을 이용해서 사용자의 세션콘테스트에 특정한 객체와 이름을 저장
+    로그인 체크시 사용자의 공간에 지정된 이름으로 객제가 저장되었는지 확인 -> 객체가 존재한다면 로그인, 존재하지 않는다면 로그인페이지 이동
+
+등록할때, 로그인체크
+    TodoRegisterController doGet() 메소드 수정
+              @Override
+              protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+          
+                  log.info("/todo/regisert GET ..........");
+          
+                  HttpSession session = req.getSession();
+          
+                  if(session.isNew()){    //기존 JESSIONID가 없는 새로운 사용자
+                      log.info("JSESSIONID 쿠키가 새로 만들어진 사용자");
+                      resp.sendRedirect("/login");
+                      return;
+                  }
+          
+                  //JSESSIONID는 있지만 해당 세션 컨텍스트에 loginInfo라는 이름이 저장된 객체가 없는경우
+                  if(session.getAttribute("loginInfo") == null) {
+                      log.info("로그인한 정보가 없는 사용자");
+                      resp.sendRedirect("/login");
+                      return;
+                  }
+                  //정상적인 경우라면 입력 화면으로
+          
+                  req.getRequestDispatcher("/WEB-INF/todo/register.jsp").forward(req, resp);
+              }
+
+브라우저 개발자 도구 ->애플리케이션 -> 쿠키 : JESSEIONID 쿠키 삭제  ->/todo/register 경로 접속
+  HttpServeletRequest의 getSession() 호출 -> 새로운 값이 생성되어 저장 ->응답헤더에 Set-Cookie 전송
+
+LoginController 작성
+    @WebServlet("/login")
+    @Log
+    public class LoginController extends HttpServlet {
+    
+    
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            log.info("login get......");
+            
+            req.getRequestDispatcher("/WEB-INF/login.jsp").forward(req,resp);
+        }
+    }
+
+login.jsp 작성
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <html>
+    <head>
+        <title>Title</title>
+    </head>
+    <body>
+        <form action="/login" method="post">
+            <input type="text" name="mid">
+            <input type="text" name="mpw">
+            <button type="submit">LOGIN</button>
+        </form>
+    </body>
+    </html>
+
+LoginController 추가 작성
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            log.info("login post......");
+    
+            String mid = req.getParameter("mid");
+            String mpw = req.getParameter("mpw");
+    
+            String str = mid+mpw;
+    
+            HttpSession session = req.getSession();
+                    //setAttribute()를 사용자 공간에 loginInfo 라는 이름으로 보관
+            session.setAttribute("loginInfo", str);
+    
+            resp.sendRedirect("/todo/list");
+        }
+  login 후 register경로 호출
