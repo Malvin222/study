@@ -1,0 +1,47 @@
+web.xml 리스너 설정 : 웹어블리케이션이 슬행될때 스프링의 ApplicationContext을 실행 (Bean 객체 사용)
+spring-webmvc 라이브러리추가
+        implementation group: 'org.springframework', name: 'spring-webmvc', version: '5.3.6'
+web.xml 추가
+      <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/root-context.xml</param-value>
+    </context-param>
+    
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+DataSource 구성
+  build.gradle 추가
+      implementation 'org.mariadb.jdbc:mariadb-java-client:3.0.4'
+      implementation group: 'com.zaxxer', name: 'HikariCP', version:'5.0.1'
+      root-context.xml 추가
+                <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+                        <property name="driverClassName" value="org.mariadb.jdbc.Driver"></property>
+                        <property name="jdbcUrl" value="jdbc:mariadb://localhost:3306/webdb"></property>
+                        <property name="username" value="webuser"></property>
+                        <property name="password" value="webuser"></property>
+                        <property name="dataSourceProperties">
+                                <props>
+                                        <prop key="cachePrepStmts">true</prop>
+                                        <prop key="prepStmtCacheSize">250</prop>
+                                        <prop key="prepStmtCacheSqlLimit">2048</prop>
+                                </props>
+                        </property>
+                </bean>
+                <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+                        <constructor-arg ref="hikariConfig" />
+                </bean>
+테스트코드 작성
+        @Autowired
+        private DataSource dataSource;
+
+        @Test
+        public void testConnection() throws Exception{
+    
+            Connection connection = dataSource.getConnection();
+            log.info(connection);
+            Assertions.assertNotNull(connection);
+    
+            connection.close();
+        }
