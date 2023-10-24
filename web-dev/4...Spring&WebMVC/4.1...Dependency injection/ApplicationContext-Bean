@@ -1,0 +1,48 @@
+ApplicationContext : Bean 객체 관리 
+
+SampleService 수정
+    @ToString
+    public class SampleService {
+    
+        @Autowired
+        private SampleDAO sampleDAO;
+    }
+
+-> SampleService 객체 안에 sampleDAO 주입
+
+스프링 어노테이션
+  @Controller : MVC의 컨트롤러를 위한 어노테이션
+  @Service : 서비스 계층의 객체를 위한 어노테이션
+  @Repository : DAO와 같은 객체를 위한 어노테이션
+  @Component : 일반 객체나 유틸리티 객체를 위한 어노테이션
+
+root-context.xml 수정  
+    <?xml version="1.0" encoding="UTF-8"?>
+    <beans xmlns="http://www.springframework.org/schema/beans"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:context="http://www.springframework.org/schema/context"
+           xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+            //해당 패키지를 스캔해서 스프링의 어노테이션들을 인식
+            <context:component-scan base-package="org.zerock.springex.sample" />
+    <!--    <bean class="org.zerock.springex.sample.SampleDAO"></bean>-->
+    <!--    <bean class="org.zerock.springex.sample.SampleService"></bean>-->
+    
+    </beans>
+
+SampleDAO 코드수정
+  @Repository
+  public class SampleDAO {
+  }
+SampleService 코드수정
+  @Service
+  @ToString
+  public class SampleService {
+  
+      @Autowired
+      private SampleDAO sampleDAO;
+  }
+
+생성자 주입 방식 : 예전에는 @Autowired를 멤버 변수에 할당, Setter 작성했으나 스프링3 이후에는 생성자 주입 방식 
+  주입 받아야 하는 객체의 변수는 final로 작성
+  생성자를 이용해서 해당 변수를 파라미터로 지정
+  Lombok에서는 @RequiredArgsConstructor를 이용해서 생성자 함수를 자동으로 작성
