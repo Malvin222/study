@@ -1,0 +1,225 @@
+자동로그인 
+    DB uuid 컬럼 추가
+    alter table tbl_member add column uuid varchar(50);
+
+    login.jsp  수정
+      <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+      <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+      <html>
+      <head>
+          <title>Title</title>
+      </head>
+      <body>
+          <c:if test="${param.result == 'error'}">
+              <h1>로그인 에러</h1>
+          </c:if>
+      
+          <form action="/login" method="post">
+              <input type="text" name="mid">
+              <input type="text" name="mpw">
+              <input type="checkbox" name="auto">
+              <button type="submit">LOGIN</button>
+          </form>
+      </body>
+      </html>
+
+Login Controller doPost 수정
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            log.info("login post......");
+    
+            String mid = req.getParameter("mid");
+            String mpw = req.getParameter("mpw");
+            
+            String auto = req.getParameter("auto");
+            
+            boolean remberMe = auto != null && auto.equals("on");
+
+            if(remberMe){
+                String uuid = UUID.randomUUID().toString();
+            }
+    
+            try{
+                MemberDTO memberDTO = MemberService.INSTANCE.login(mid, mpw);
+                HttpSession session = req.getSession();
+                session.setAttribute("loginInfo", memberDTO);
+                resp.sendRedirect("/todo/list");
+            } catch (Exception e){
+                resp.sendRedirect("/login?result=error");
+            }
+    //        String str = mid+mpw;
+    //
+    //        HttpSession session = req.getSession();
+    //                //setAttribute()를 사용자 공간에 loginInfo 라는 이름으로 보관
+    //        session.setAttribute("loginInfo", str);
+    //
+    //        resp.sendRedirect("/todo/list");
+        }
+
+  MemberVO,DTO 코드 추가
+    private String uuid; 추가
+
+  MemberDAO 코드 추가
+        public void updateUuid(String mid, String uuid) throws Exception{
+        
+        String sql ="update tbl_member set uuid = ? where mid = ?";
+        
+        @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+        @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        
+        preparedStatement.setString(1, uuid);
+        preparedStatement.setString(2, mid);
+        preparedStatement.executeUpdate();
+    }
+
+MemberService 코드 추가
+        public void updateUuid(String mid, String uuid) throws  Exception{
+        
+        dao.updateUuid(mid, uuid);
+    }
+
+loginController doPost 수정
+     @Override
+      protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+          log.info("login post......");
+  
+          String mid = req.getParameter("mid");
+          String mpw = req.getParameter("mpw");
+  
+          String auto = req.getParameter("auto");
+  
+          boolean remberMe = auto != null && auto.equals("on");
+  
+          if(remberMe){
+              String uuid = UUID.randomUUID().toString();
+          }
+  
+          try{
+              MemberDTO memberDTO = MemberService.INSTANCE.login(mid, mpw);
+  
+              if(remberMe){
+                  String uuid = UUID.randomUUID().toString();
+  
+                  MemberService.INSTANCE.updateUuid(mid, uuid);
+                  memberDTO.setUuid(uuid);
+              }
+  
+              HttpSession session = req.getSession();
+              session.setAttribute("loginInfo", memberDTO);
+              resp.sendRedirect("/todo/list");
+          } catch (Exception e){
+              resp.sendRedirect("/login?result=error");
+          }
+
+자동로그인 체크후 로그인 후 UUID 생성 확인 
+컨트롤러 수정 
+                if(remberMe){
+                String uuid = UUID.randomUUID().toString();
+
+                MemberService.INSTANCE.updateUuid(mid, uuid);
+                memberDTO.setUuid(uuid);
+
+                Cookie rememberCookie = new Cookie("remember-me", uuid);
+                rememberCookie.setMaxAge(60*60*24*7); //쿠키의 유효기간은 1주일
+                rememberCookie.setPath("/");
+                
+                resp.addCookie(rememberCookie);
+            
+            }
+
+쿠키의 값을 이용한 사용자 조회
+MemberDAO  코드 추가
+        public MemberVO selectUUID(String uuid) throws Exception{
+        
+        String query = "select mid, mpw, mname, uuid from tbl_member where uuid = ? ";
+        
+        @Cleanup Connection connection = ConnectionUtil.INSTANCE.getConnection();
+        @Cleanup PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, uuid);
+        
+        @Cleanup ResultSet resultSet = preparedStatement.executeQuery();
+        
+        resultSet.next();
+        
+        MemberVO memberVO = MemberVO.builder()
+                .mid(resultSet.getString(1))
+                .mpw(resultSet.getString(2))
+                .mname(resultSet.getString(3))
+                .uuid(resultSet.getString(4))
+                .build();
+        return memberVO;
+    }
+
+MemberService 코드 추가
+        public MemberDTO getByUUID(String uuid) throws Exception{
+        MemberVO vo = dao.selectUUID(uuid);
+        
+        MemberDTO memberDTO = modelMapper.map(vo, MemberDTO.class);
+        
+        return memberDTO;
+    }
+
+LoginCheckFilter 코드 수정
+      @WebFilter(urlPatterns = {"/todo/*"})
+      @Log4j2
+      public class LoginCheckFilter implements Filter {
+      
+          @Override
+          public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+      
+              log.info("Login check filter....");
+                                      //doFilter는 HttpServletreq,resp보다 상위 타입 파리미터 사용 -> 다운캐스팅
+              HttpServletRequest req = (HttpServletRequest)request;
+              HttpServletResponse resp = (HttpServletResponse)response;
+      
+              HttpSession session = req.getSession();
+      
+              //loginInfo의 값이 null 이라면 login으로 이동
+              if(session.getAttribute("loginInfo") != null) {
+                  chain.doFilter(request,response);
+                  return;
+      
+              }
+              //session에 loginInfo 값이 없다면 쿠키를 체크
+              Cookie cookie = findCookie(req.getCookies(),"remember-me");
+      
+              //세션에도 없고 쿠기도 없다면 그냥 로그인으로 이동
+              if(cookie == null){
+                  resp.sendRedirect("/login");
+                  return;
+              }
+              //쿠키가 존재하는 상황이라면
+              log.info("cookie는 존재하는 상황");
+              //uuid값
+              String uuid = cookie.getValue();
+      
+              try{
+                  //데이터베이스 확인
+                  MemberDTO memberDTO = MemberService.INSTANCE.getByUUID(uuid);
+      
+                  log.info("쿠키의 값으로 조회한 사용자 정보:" +memberDTO);
+                  if(memberDTO == null){
+                      throw new Exception("Cookie value is not valid");
+                  }
+                  //회원 정보를 세션에 추가
+                  session.setAttribute("loginInfo", memberDTO);
+                  chain.doFilter(request,response);
+              } catch (Exception e ){
+                  e.printStackTrace();
+                  resp.sendRedirect("/login");
+              }
+          }
+          private Cookie findCookie(Cookie[] cookies, String name){
+      
+              if(cookies == null || cookies.length == 0){
+                  return null;
+              }
+      
+              Optional<Cookie> result = Arrays.stream(cookies)
+                      .filter(ck -> ck.getName().equals(name))
+                      .findFirst();
+      
+              return result.isPresent()?result.get():null;
+          }
+      }
+
