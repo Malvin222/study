@@ -1,0 +1,21 @@
+LogoutController 클래스 작성
+    @WebServlet("/logout")
+    @Log4j2
+    public class LogoutController extends HttpServlet {
+    
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    
+            log.info("log out...........");
+    
+            HttpSession session = req.getSession();
+            session.invalidate();
+    
+            resp.sendRedirect("/");
+        }
+    }
+
+list.jsp 추가 작성
+  <form action="/logout" method="post">
+    <button>Logout</button>
+  </form>
