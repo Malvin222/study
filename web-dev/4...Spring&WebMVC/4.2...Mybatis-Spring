@@ -1,0 +1,67 @@
+Mybatis
+  PreparedStatement/ResultSet 처리 - 마이바티스가 알아서 처리해 줌 
+  Connection/PreparedStatement/ResultSet의 close() 처리 - 자동으로  close()처리
+  SQL의 분리 
+
+마이바티스와 스프링의 연동 방식
+  마이바티스를 단독으로 개발하고 스프링에서 DAO를 작성해서 처리하는 방식 
+    -> 기존 DAO에서 SQL의 처리를 마이바티스를 이용하는 구조 (마이바티스와 스프링을 완전히 독립적인 존재로 바라보고 개발하는 방식)
+  마이바티스와 스프링을 연동하고 Mapper 인터페이스만 이용하는 방식 
+    -> 스프링과 마이바티스 사이에 mybatis-spring 이라는 라이브러리 이용, 스프링이 데이터베이스 전체에대한 처리,마이바티스는 일부 기능개발 (개발시 Mapper 인터에이스라는 방식을 이용해서 인터페이스만으로 모든 개발이 가능) -> 최소한의 코드로 개발가능
+ 마이바티스 라이브러리
+   스프링 관련 : spring-jdbc,spring-tx
+   마이바티스 관련 : mybatis,mybatis-spring
+빌드 그래들 추가
+    implementation group: 'org.springframework', name: 'spring-jdbc', version: '5.3.6'
+    implementation group: 'org.springframework', name: 'spring-tx', version: '5.3.6'
+    implementation 'org.mybatis:mybatis:3.5.9'
+    implementation 'org.mybatis:mybatis-spring:2.0.7'
+루트-컨텍스트 추가
+    <bean id="sqlSessionfactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+            <property name="dataSource" ref="dataSource" />
+    </bean>
+mapper 패키지 작성 -> TimeMapper 작성
+  public interface TimeMapper {
+    @Select("select now()")
+    String getTime();
+  }
+루트-컨텍스트 추가
+   <mybatis:scan base-package="org.zerock.springex.mapper"></mybatis:scan>
+테스트코드 작성 (TimeMapperTests)
+  @Log4j2
+  @ExtendWith(SpringExtension.class)
+  @ContextConfiguration(locations = "file:src/main/webapp/WEB-INF/root-context.xml")
+  public class TimeMapperTests {
+
+      //경고 발생 방지 (직접 스프링의 Bean에등록된 경우가 아님)
+      @Autowired(required = false)
+      private TimeMapper timeMapper;
+      
+      @Test
+      public  void testGetTime(){
+          log.info(timeMapper.getTime());
+      }
+  }
+
+  XML로 SQL 분리 (어노테이션 사용 X)
+  TimeMapper2 인터페이스 작성
+        public interface TimeMapper2 {
+        String getNow();
+      resources -> mapperes -> TimeMapper2.xml 작성
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+                        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        <mapper namespace="org.zerock.springex.mapper.TimeMapper2">
+            <select id="getNow" resultType="string">
+                select now()
+            </select>
+    }
+
+  <select> 태그는 반드시 resultType이나 resultMap이라는 속성을 지정해야함 resultType의 자주 사용하는 타입은 string
+
+  루트-컨텍스트.xml 추가
+            <bean id="sqlSessionfactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+                <property name="dataSource" ref="dataSource" />
+                <property name="mapperLocations" value="classpath:/mappers/**/*.xml"></property>
+            </bean>
+
