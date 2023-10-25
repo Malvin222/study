@@ -1,0 +1,569 @@
+
+=======================목록=========================
+TodoMapper 
+      //목록
+      List<TodoVO> selectAll();
+TodoMapper.xml
+        <!--목록-->
+        <select id="selectAll" resultType="org.zerock.springex.domain.TodoVO">
+            select * from tbl_todo order by tno desc;
+        </select>
+TodoMapperTests
+        @Test
+        public void testSelectAll(){
+    
+            List<TodoVO> voList = todoMapper.selectAll();
+    
+            voList.forEach(vo -> log.info(vo));
+        }
+TodoService 
+      //목록
+      List<TodoDTO> getAll();
+TodoServiceImpl
+        //목록
+        @Override
+        public List<TodoDTO> getAll(){
+            
+            List<TodoDTO> dtoList = todoMapper.selectAll().stream()
+                    .map(vo -> modelMapper.map(vo, TodoDTO.class))
+                    .collect(Collectors.toList());
+            return dtoList;
+        }
+TodoController
+        //목록
+        @RequestMapping("/list")
+        public void list(Model model){
+    
+            log.info("todo list......");
+    
+            model.addAttribute("dtoList", todoService.getAll());
+        }
+list.jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS-->
+    <title>Hello, world!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container-fluid">
+    <!--   기존의 <h1>Header</h1>-->
+    <div class="row">
+        <div class="col">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Navbar</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Link</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Dropdown
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Action</a></li>
+                                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                            </li>
+                        </ul>
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <!-- header end-->
+        <!-- 기존의 <h1>Header</h1>끝-->
+    </div>
+    <div class="row content">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Featured
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Special title treatment</h5>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Tno</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Writer</th>
+                            <th scope="col">DueDate</th>
+                            <th scope="col">Finished</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <c:forEach items="${dtoList}" var="dto">
+                            <tr>
+                                <th scope="row"><c:out value="${dto.tno}"/></th>
+                                <td><a href="/todo/read?tno=${dto.tno}" class="text-decoration-none"><c:out value="${dto.title}"/></a></td>
+                                <td><c:out value="${dto.writer}"/></td>
+                                <td><c:out value="${dto.dueDate}"/></td>
+                                <td><c:out value="${dto.finished}"/></td>
+                            </tr>
+                        </c:forEach>
+                        </tbody>
+                    </table>
+<%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
+<%--                    <a href="#" class="btn btn-primary">Go somewhere</a>--%>
+                </div>
+            </div>
+        </div>
+        <div class="row content">
+            <h1>Content</h1>
+        </div>
+    </div>
+    <div class="row footer">
+        <!--        <h1>Footer</h1>-->
+        <div class="row fixed-bottom" style="z-index: -100">
+            <footer class="py-1 my-1">
+                <p class="text-center text-muted">Footer</p>
+            </footer>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
+
+=======================조회=========================
+TodoMapper
+      //조회
+      TodoVO selectOne(Long tno);
+TodoMepper.xml
+        <!--조회-->
+        <select id="selectOne" resultType="org.zerock.springex.domain.TodoVO">
+            select  * from tbl_todo where tno = #{tno}
+        </select>
+TodoMapperTests
+      @Test
+      public void testSelectOne(){
+          TodoVO todoVO =todoMapper.selectOne(3L);
+  
+          log.info(todoVO);
+      }
+TodoService
+        //조회
+        TodoDTO getOne(Long tno);
+TodoServiceImpl
+          @Override
+          public TodoDTO getOne(Long tno) {
+              TodoVO todoVO = todoMapper.selectOne(tno);
+              
+              TodoDTO todoDTO = modelMapper.map(todoVO, TodoDTO.class);
+              
+              return todoDTO;
+          }
+TodoController
+        //조회
+        @GetMapping("/read")
+        public void read(Long tno, Model model){
+            
+            TodoDTO todoDTO = todoService.getOne(tno);
+            log.info(todoDTO);
+            
+            model.addAttribute("dto", todoDTO);
+        }
+read.jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS-->
+    <title>Hello, world!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container-fluid">
+    <!--   기존의 <h1>Header</h1>-->
+    <div class="row">
+        <div class="col">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Navbar</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Link</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Dropdown
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Action</a></li>
+                                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                            </li>
+                        </ul>
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <!-- header end-->
+        <!-- 기존의 <h1>Header</h1>끝-->
+    </div>
+    <div class="row content">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Featured
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Tno</span>
+                        <input type="text" name="tno" class="form-control" value=<c:out value="${dto.tno}"></c:out> readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Title</span>
+                        <input type="text" name="title" class="form-control" value=<c:out value="${dto.title}"></c:out> readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Duedate</span>
+                        <input type="text" name="date" class="form-control" value=<c:out value="${dto.dueDate}"></c:out> readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Writer</span>
+                        <input type="text" name="write" class="form-control" value=<c:out value="${dto.writer}"></c:out> readonly>
+                    </div>
+
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            Finished &nbsp;
+                        </label>
+                        <input class="form-check-input" type="checkbox" name="finished" ${dto.finished?"checked":""} disabled>
+                    </div>
+                    <div class="my-4">
+                        <div class="float-end">
+                            <button type="button" class="btn btn-primary">Modify</button>
+                            <button type="button" class="btn btn-secondary">List</button>
+                        </div>
+                    </div>
+                    <script>
+                        document.querySelector(".btn-primary").addEventListener("click",function (e){
+                            self.location = "/todo/modify?tno="+${dto.tno}
+                        },false)
+                        
+                        document.querySelector(".btn-secondary").addEventListener("click",function (e){
+                            self.location = "/todo/list";
+                        },false)
+                    </script>
+                    <%--                    <h5 class="card-title">Special title treatment</h5>--%>
+                    <%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
+                    <%--                    <a href="#" class="btn btn-primary">Go somewhere</a>--%>
+                </div>
+            </div>
+        </div>
+        <div class="row content">
+            <h1>Content</h1>
+        </div>
+    </div>
+    <div class="row footer">
+        <!--        <h1>Footer</h1>-->
+        <div class="row fixed-bottom" style="z-index: -100">
+            <footer class="py-1 my-1">
+                <p class="text-center text-muted">Footer</p>
+            </footer>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
+
+
+=======================수정=========================
+TodoMepper
+      //수정
+      void update(TodoVO todoVO);
+TodoMapper.xml
+        <!--수정-->
+        <update id="update">
+            update tbl_todo set title= #{title}, dueDate = #{dueDate}, finished = #{finished} where tno = #{tno}
+        </update>
+TodoService
+        //수정
+        void  modify(TodoDTO todoDTO);
+TodoServiceImpl
+      //수정
+      @Override
+      public void modify(TodoDTO todoDTO) {
+          TodoVO todoVO = modelMapper.map(todoDTO, TodoVO.class);
+          todoMapper.update(todoVO);
+      }
+CheckboxFormatter 작성 -->  checkbox 처리
+    public class CheckboxFormatter implements Formatter<Boolean> {
+        
+        @Override
+        public Boolean parse(String text, Locale locale) throws ParseException{
+            if(text == null){
+                return  false;
+            }
+            return text.equals("on");
+        }
+        
+        @Override
+        public String print(Boolean object, Locale locale){
+            return object.toString();
+        }
+    }
+서블렛 컨텍스트 작성
+  <bean class="org.zerock.springex.controller.formmater.CheckboxFormatter"/>
+
+
+
+Controller
+        //조회
+    @GetMapping({"/read", "/modify"})
+    public void read(Long tno, Model model){
+
+        TodoDTO todoDTO = todoService.getOne(tno);
+        log.info(todoDTO);
+
+        model.addAttribute("dto", todoDTO);
+    }
+        //수정
+    @PostMapping("/modify")
+    public String modify(@Valid TodoDTO todoDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+        if(bindingResult.hasErrors()){
+            log.info("has errors.......");
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
+            redirectAttributes.addAttribute("tno", todoDTO.getTno());
+            return "redirect:/todo/modify";
+        }
+        log.info(todoDTO);
+        todoService.modify(todoDTO);
+        return "redirect:/todo/list";
+    }
+
+
+modify.jsp
+  <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS-->
+    <title>Hello, world!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container-fluid">
+    <!--   기존의 <h1>Header</h1>-->
+    <div class="row">
+        <div class="col">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="#">Navbar</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="#">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Link</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Dropdown
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Action</a></li>
+                                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+                            </li>
+                        </ul>
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success" type="submit">Search</button>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+        </div>
+        <!-- header end-->
+        <!-- 기존의 <h1>Header</h1>끝-->
+    </div>
+    <div class="row content">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    Featured
+                </div>
+                <div class="card-body">
+                    <form action="/todo/modify" method="post">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">TNO</span>
+                        <input type="text" name="tno" class="form-control" value=<c:out value="${dto.tno}"></c:out> readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Title</span>
+                        <input type="text" name="title" class="form-control" value=<c:out value="${dto.title}"></c:out> readonly>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Duedate</span>
+                        <input type="date" name="dueDate" class="form-control" value=<c:out value="${dto.dueDate}"></c:out> >
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Writer</span>
+                        <input type="text" name="write" class="form-control" value=<c:out value="${dto.writer}"></c:out> readonly>
+                    </div>
+
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            Finished &nbsp;
+                        </label>
+                        <input class="form-check-input" type="checkbox" name="finished" ${dto.finished?"checked":""} disabled>
+                    </div>
+                    <div class="my-4">
+                        <div class="float-end">
+                            <button type="button" class="btn btn-danger">Remove</button>
+                            <button type="button" class="btn btn-primary">Modify</button>
+                            <button type="button" class="btn btn-secondary">List</button>
+                        </div>
+                    </div>
+                    </form>
+                      <script>
+                        const serverValidResult = {}
+                        <c:forEach items="${errors}" var="error">
+                        serverValidResult['${error.getField()}'] = '${error.deFaultMessage}'
+                        </c:forEach>
+                        console.log(serverValidResult)
+                    </script>
+
+                                        <script>
+
+                        const formObj = document.querySelector("form")
+
+                        document.querySelector(".btn-danger").addEventListener("click",function (e) {
+
+                            e.preventDefault()
+                            e.stopPropagation()
+                            formObj.action ="/todo/remove"
+                            formObj.method ="post"
+
+                            formObj.submit()
+                        },false);
+
+                        document.querySelector(".btn-primary").addEventListener("click",function (e){
+                            e.preventDefault()
+                            e.stopPropagation()
+
+                            formObj.action = "/todo/modify"
+                            formObj.method = "post"
+
+                            formObj.submit()
+                        },false);
+
+                        document.querySelector(".btn-secondary").addEventListener("click",function (e){
+                            e.preventDefault()
+                            e.stopPropagation()
+                            self.location = "/todo/list";
+                        },false);
+                    </script>
+                    <%--                    <h5 class="card-title">Special title treatment</h5>--%>
+                    <%--                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>--%>
+                    <%--                    <a href="#" class="btn btn-primary">Go somewhere</a>--%>
+                </div>
+            </div>
+        </div>
+        <div class="row content">
+            <h1>Content</h1>
+        </div>
+    </div>
+    <div class="row footer">
+        <!--        <h1>Footer</h1>-->
+        <div class="row fixed-bottom" style="z-index: -100">
+            <footer class="py-1 my-1">
+                <p class="text-center text-muted">Footer</p>
+            </footer>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
+
+
+=======================삭제=========================
+Controller
+    //삭제
+    @PostMapping("/remove")
+    public String remove(Long tno, RedirectAttributes redirectAttributes){
+
+        log.info("----------------remove------------");
+        log.info("tno: "+ tno);
+        
+        todoService.remove(tno);
+        
+        return "redirect:/todo/list";
+    }
+TodoMapper
+      //삭제
+    void  delete(Long tno);
+TodoMapper.xml  
+      <!--삭제-->
+    <delete id="delete">
+            delete from tbl_todo where tno =#{tno}
+    </delete>
+TodoService
+      //삭제
+    void remove(Long tno);
+TodoServiceImpl
+      //삭제
+    @Override
+    public void remove(Long tno) {
+        todoMapper.delete(tno);
+    }
