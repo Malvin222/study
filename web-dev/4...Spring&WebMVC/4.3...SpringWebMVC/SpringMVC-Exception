@@ -1,0 +1,89 @@
+@ControllerAdvice : 컨트롤러에서 발생하는 예외에 맞게 처리할 수 있는 기능을 제공
+controller -> exception -> CommonExeptionAdvice 클래스 작성
+        
+        @ControllerAdvice
+        @Log4j2
+        public class CommonExeptionAdvice {
+        
+                @ResponseBody
+                @ExceptionHandler(NumberFormatException.class)
+                public String exceptNumber(NumberFormatException numberFormatException){
+        
+                    log.error("---------------------------------");
+                    log.error(numberFormatException.getMessage());
+        
+                    return "NUBER FORMAT EXCEPTION";
+                }
+            }
+        
+
+
+@ExceptionHandler : Exception 객체 지정
+
+SampleController 추가
+        @GetMapping("/ex7")
+        public void ex7(String p1, int p2){
+            log.info("p1........"+p1);
+            log.info("p2........"+p2);
+        }
+
+법용적인 예외처리
+  CommonExceptionAdvice에 코드 추가
+        @ResponseBody
+        @ExceptionHandler(Exception.class)
+        public String exceptCommon(Exception exception){
+            
+            log.error("---------------------------------");
+            log.error(exception.getMessage());
+            
+            StringBuffer buffer = new StringBuffer("<ul>");
+            
+            buffer.append("<li>" +exception.getMessage()+"</li>");
+    
+            Arrays.stream(exception.getStackTrace()).forEach(stackTraceElement ->{
+                buffer.append("<li>"+stackTraceElement+"</li>");
+            });
+            buffer.append("</ul>");
+            
+            return buffer.toString();
+        }  
+
+404에러페이지와 @ResponseStatus
+  CommonExeptionAdvice 에 코드추가
+        @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public  String notFound(){
+
+        return  "custom404";
+    }
+
+  custom404.jsp
+      <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+      <html>
+      <head>
+          <title>Title</title>
+      </head>
+      <body>
+          <h1>Oops! 페이지를 찾을 수 없습니다!</h1>
+      </body>
+      </html>
+
+  web.xml  
+          <servlet>
+          <servlet-name>appServlet</servlet-name>
+          <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  
+              <init-param>
+                  <param-name>contextConfigLocation</param-name>
+                  <param-value>/WEB-INF/servlet-context.xml</param-value>
+              </init-param>
+  
+              <init-param>
+                  <param-name>throwExceptionIfNoHandlerFound</param-name>
+                  <param-value>true</param-value>
+              </init-param>
+  
+          <load-on-startup>1</load-on-startup>
+  
+      </servlet>
+        
