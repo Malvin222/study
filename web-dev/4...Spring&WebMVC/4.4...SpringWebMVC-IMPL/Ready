@@ -1,0 +1,6 @@
+build.gradle 추가
+       //DTO와 VO의 변환을 위한 ModelMapper
+        implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.0.0'
+        
+        //DTO의 검증을 위한 Validate관련 라이브러리
+        implementation group: 'org.hibernate', name: 'hibernate-validator', version:'6.2.1.Final'
