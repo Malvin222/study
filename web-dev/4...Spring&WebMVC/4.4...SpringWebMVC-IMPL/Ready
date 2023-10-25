@@ -4,3 +4,38 @@ build.gradle 추가
         
         //DTO의 검증을 위한 Validate관련 라이브러리
         implementation group: 'org.hibernate', name: 'hibernate-validator', version:'6.2.1.Final'
+
+DB 연결
+       drop table tbl_todo;
+
+       create table tbl_todo(
+           tno int auto_increment primary key ,
+           title varchar(100) not null ,
+           duDate varchar(100) not null ,
+           writer varchar(50) not null ,
+           finished tinyint default 0
+       );
+
+service 패키지 생성
+
+ModelMapper 설정 , @Configuration
+config 패키지 -> ModelMapperConfig 클래스 생성 (MapperUtil 클래스를 스프링으로 변경한 버전 @Configuration 이용)
+       @Configuration
+       public class ModelMapperConfig {
+
+           //메소드의 실행 결과로 반환된 객체를 스프링의 빈으로 등록시키는 역할
+           @Bean
+           public ModelMapper getMapper(){
+               ModelMapper modelMapper = new ModelMapper();
+               modelMapper.getConfiguration()
+                       .setFieldMatchingEnabled(true)
+                       .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
+                       .setMatchingStrategy(MatchingStrategies.STRICT);
+               
+               return modelMapper;
+           }
+       }
+
+루트-컨텍스트 추가
+        <context:component-scan base-package="org.zerock.springex.config"/>
+
