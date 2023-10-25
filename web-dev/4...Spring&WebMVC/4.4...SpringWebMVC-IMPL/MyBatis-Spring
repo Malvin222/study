@@ -1,0 +1,55 @@
+Mybatis를 이용하는 개발 단계
+1. VO선언 -> 2. Mapper 인터페이스 개발 -> 3.XML의 개발 -> 4.테스트코드의 개발
+
+VO작성
+  @Getter
+  @ToString
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @Builder
+  public class TodoVO {
+  
+      private Long tno;
+      private String title;
+      private LocalDate dueDate;
+      private String writer;
+      private boolean finished;
+  }
+
+TodoMapper 인터페이스 작성 
+    public interface TodoMapper {
+      
+      String getTime();
+  }
+
+TodoMapper.xml 작성
+  <?xml version="1.0" encoding="UTF-8"?>
+  <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="org.zerock.springex.mapper.TodoMapper">
+      
+      <select id="getTime" resultType="string">
+          select now()
+      </select>
+  </mapper>
+
+TodoMapperTests 작성
+    @Log4j2
+    @ExtendWith(SpringExtension.class)
+    @ContextConfiguration(locations = "file:src/main/webapp/WEB-INF/root-context.xml")
+    public class TodoMapperTests {
+        
+        @Autowired(required = false)
+        private TodoMapper todoMapper;
+        
+        @Test
+        public void testGetTime(){
+            log.info(todoMapper.getTime());
+        }
+    }
+
+log4j2.xml 추가
+        <logger name="org.zerock.springex.mapper" level="TRACE" additivity="false">
+            <appender-ref ref="console" />
+        </logger>
+
