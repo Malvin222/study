@@ -1,0 +1,163 @@
+단순 파라미더의 자동수집
+  SampleController ex1()추가
+        @GetMapping("/ex1")
+        public void ex1(String name, int age){
+            log.info("ex1........");
+            log.info("name: " +name);
+            log.info("age: "+age);
+        }
+@RequestParam
+  ex2() 추가
+    @GetMapping("/ex2")
+    public void ex2(@RequestParam(name="name", defaultValue="AAA") String name,
+                    @RequestParam(name="age", defaultValue = "20") int age){
+        log.info("ex2......");
+        log.info("name: "+name);
+        log.info("age: "+age);
+    }
+
+Formatter : 문자열을 포맷을 이용해서 특정한 개체로 변환
+        @GetMapping("/ex3")
+        public  void  ex3(LocalDate dueDate){
+            log.info("ex3.......");
+            log.info("dueDate: " + dueDate);
+        }
+controller -> formmater -> LocalDateFormatter 
+    public class LocalDateFormatter implements Formatter<LocalDate> {
+
+    @Override
+    public LocalDate parse(String text, Locale locale) {
+        return LocalDate.parse(text, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
+    @Override
+    public String print(LocalDate object, Locale locale){
+        return DateTimeFormatter.ofPattern("yyyy-MM-dd").format(object);
+    }
+}
+
+서블렛-컨텍스트 추가
+      <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="formatters">
+            <set>
+                <bean class="org.zerock.springex.controller.formmater.LocalDateFormatter"/>
+            </set>
+        </property>
+    </bean>
+  <mvc:annotation-driven conversion-service="conversionService" />
+
+객체 자료형의 파라미터 수집
+dto -> TodoDTO 작성
+  @ToString
+  @Data
+  @Builder
+  @AllArgsConstructor
+  @NoArgsConstructor
+  public class TodoDTO {
+      private Long tno;
+      private String title;
+      private LocalDate dueDate;
+      private boolean finished;
+      private String writer; //새로 추가됨
+  }
+
+TodoController 수정
+      @PostMapping("/register")
+      public void registerPost(TodoDTO todoDTO){
+          log.info("POST todo register......");
+          log.info(todoDTO);
+      }
+views -> todo -> register.jsp
+  <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+  <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+  <html>
+  <head>
+      <title>Title</title>
+  </head>
+  <body>
+      <form action="/todo/register" method="post">
+          <div>
+              Title: <input type="text" name="title">
+          </div>
+          <div>
+              DueDate: <input type="date" name="dueDate" value="2022-12-25">
+          </div>
+          <div>
+              Writer: <input type="checkbox" name="finished">
+          </div>
+          <div>
+              <button type="submit">Register</button>
+          </div>
+      </form>
+  </body>
+  </html>
+
+파라미터 Model
+        @GetMapping("/ex4")
+        public void ex4(Model model) {
+            log.info("-----------------");
+            model.addAttribute("message","Hello World");
+        }
+ex4.jsp
+    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+    <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+    <html>
+    <head>
+        <title>Title</title>
+    </head>
+    <body>
+        <h1>${message}</h1>
+        <h1><c:out value="${message}"></c:out></h1>
+    </body>
+    </html>
+
+    @GetMapping("/ex4_1")
+    public void ex4Extra(@ModelAttribute("dto") TodoDTO todoDTO, Model model){
+        log.info(todoDTO);
+    }
+
+RedirectAttribures
+    addAttribute(키,값) : 리다이렉트할 때 쿼리 스트링이 되는 값을 지정
+    addFlashAttribute(키,값) : 일회용으로만 데이터를 전달하고 삭제되는 값을 지정
+
+    SampleController 
+          @GetMapping("/ex5")
+      public String ex5(RedirectAttributes redirectAttributes){
+          redirectAttributes.addAttribute("name","ABC");
+          redirectAttributes.addFlashAttribute("result","success");
+  
+          return "redirect:/ex6";
+      }
+      @GetMapping("/ex6")
+      public void ex6(){
+      }
+
+views -> ex6.jsp
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+    <h1>ADD FLASH ATTRIBUTE: ${result}</h1>
+</body>
+</html>
+
+리턴타입 : void(화면이 따로있는 경우),
+          문자열(화면이 따로있는 경우) -> redirect: 리다이렉션 이용, forward 브라우저의 URL은 고정하고 내부적으로 다른 URL로 처리 
+          객체(JSON)나 배열, 기본자료형, ResponseEnity(JSON)
+
+어노테이션
+  컨트롤러 선언부
+    @Controller : 스프링 빈의 처리됨을 명시
+    @RestController : REST 방식의 처리를 위한 컨트롤러
+    @RequestMapping : 특정한 URL 패턴에 맞는 컨트롤러
+  메소드 선언부
+    @GetMapping/@PostMapping/@DeleteMapping/@PutMapping : HTTP전송방식에 따라 해당 메소드를 지정
+    @RequestMapping : GET/POST 방식 모두 지원
+    @ResponseBody : REST 방시에서 사용
+  메소드 파라미터
+    @RequestParam : Request에 이쓴ㄴ 특정한 이름의 데이터를 파라미터로 받아서 처리
+    @PathVariable: URL 경로의 일부를 변수로 삼아서 처리
+    @ModelAttribute: 해당 파라미터는 반드시 Model에 포함되어서 다시 뷰로 전달됨을 명시
+    @SessionAttribute, @Valid, @RequestBody 등
