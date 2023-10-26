@@ -160,3 +160,72 @@ list.jsp
                             </tr>
                         </c:forEach>
   
+
+====조회 페이지===
+PageRequestDTO
+   private String link;
+      public String getLink(){
+        if(link == null){
+            StringBuilder builder = new StringBuilder();
+            builder.append("page="+ this.page);
+            builder.append("&size="+this.size);
+            link = builder.toString();
+        }
+        return link;
+    }
+list.jsp
+  ${pageRequestDTO.link}
+
+=======조회-> 목록 =====
+컨트롤러
+public void read(Long tno,PageRequestDTO pageRequestDTO, Model model){
+
+read.jsp
+                document.querySelector(".btn-secondary").addEventListener("click",function (e){
+                    self.location = "/todo/list?${pageRequestDTO.link}";
+                },false)
+
+=======조회 -> 수정=========
+read.jsp
+                  document.querySelector(".btn-primary").addEventListener("click",function (e){
+                    self.location = `/todo/modify?tno=${dto.tno}&${pageRequestDTO.link}`
+                },false)
+
+=======수정 삭제후 이동====
+modify.jsp
+                          <form action="/todo/modify" method="post">
+                            <input type="hidden" name="page" value="${pageRequestDTO.page}">
+                            <input type="hidden" name="page" value="${pageRequestDTO.size}">
+
+TodoController
+        //삭제
+    @PostMapping("/remove")
+    public String remove(Long tno,PageRequestDTO pageRequestDTO , RedirectAttributes redirectAttributes){
+
+        log.info("----------------remove------------");
+        log.info("tno: "+ tno);
+
+        todoService.remove(tno);
+        
+        redirectAttributes.addAttribute("page",1);
+        redirectAttributes.addAttribute("size", pageRequestDTO.getSize());
+        
+        return "redirect:/todo/list";
+    }
+  //수정
+      @PostMapping("/modify")
+    public String modify(PageRequestDTO pageRequestDTO,@Valid TodoDTO todoDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes){
+        if(bindingResult.hasErrors()){
+            log.info("has errors.......");
+            redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors());
+            redirectAttributes.addAttribute("tno", todoDTO.getTno());
+            return "redirect:/todo/modify";
+        }
+        log.info(todoDTO);
+        todoService.modify(todoDTO);
+        
+        redirectAttributes.addAttribute("page", pageRequestDTO.getPage());
+        redirectAttributes.addAttribute("size", pageRequestDTO.getSize());
+        
+        return "redirect:/todo/list";
+    }
