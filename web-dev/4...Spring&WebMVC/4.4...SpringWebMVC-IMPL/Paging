@@ -9,7 +9,7 @@ PageRequestDTO 생성
     @Builder
     @Data
     @AllArgsConstructor
-    @NotEmpty
+    @NoArgsConstructor
     public class PageRequestDTO {
         @Builder.Default
         @Min(value = 1)
