@@ -1,0 +1,55 @@
+SQL 연습
+  더미데이터 생성  insert into tbl_todo(title, dueDate, writer) (select title,dueDate,writer from tbl_todo);
+                                                                  //기존 테이블 데이터 수만큼 인서트
+limit                                            //건더띄는 수, 가져오는 수
+  select * from tbl_todo order by tno desc limit 10,10; -> 2page
+  select * from tbl_todo order by tno desc limit 40,10 -> 5page
+
+PageRequestDTO 생성
+    @Builder
+    @Data
+    @AllArgsConstructor
+    @NotEmpty
+    public class PageRequestDTO {
+        @Builder.Default
+        @Min(value = 1)
+        @Positive
+        private int page =1;
+        
+        @Builder.Default
+        @Min(value = 10)
+        @Max(value = 100)
+        @Positive
+        private int size = 10;
+        
+        public int getSkip(){
+            return (page -1 ) * 10;
+        }
+    }
+
+TodoMapper 
+      //페이지처리
+    List<TodoVO> selectList(PageRequestDTO pageRequestDTO);
+        <!--페이지처리-->
+        <select id="selectList" resultType="org.zerock.springex.domain.TodoVO">
+            select * from tbl_todo order by tno desc limit #{skip}, #{size}
+        </select>
+
+테스트코드
+        @Test 
+    public void testSelectList(){
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+                .page(1)
+                .size(10)
+                .build();
+        List<TodoVO> voList = todoMapper.selectList(pageRequestDTO);
+        voList.forEach(vo -> log.info(vo));
+    }
+
+TodoMapper
+      //전체 데이터 수
+    int getCount(PageRequestDTO pageRequestDTO);
+        <!--전체 데이터 수-->
+    <select id="getCount" resultType="int">
+        select count(tno) from tbl_todo
+    </select>
