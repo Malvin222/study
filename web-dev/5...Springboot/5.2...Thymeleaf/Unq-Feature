@@ -1,0 +1,97 @@
+    @GetMapping("/ex/ex2")
+    public void ex2(Model model){
+        log.info("ex/ex2...........................");
+
+        List<String> strList = IntStream.range(1,10)
+                .mapToObj(i ->"Data"+i)
+                .collect(Collectors.toList());
+        model.addAttribute("list",strList);
+
+        Map<String,String> map = new HashMap<>();
+        map.put("A","AAAA");
+        map.put("B","BBBB");
+
+        model.addAttribute("map",map);
+
+        SampleDTO sampleDTO = new SampleDTO();
+        sampleDTO.p1 = "Value -- p1";
+        sampleDTO.p2 = "Value -- p2";
+        sampleDTO.p3 = "Value -- p3";
+
+        model.addAttribute("dto", sampleDTO);
+    }
+
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div th:text="${list}"></div>
+    <div th:text="${map}"></div>
+    <div th:text="${dto}"></div>
+<script th:inline="javascript">
+
+    const list = [[${list}]]
+
+    const map = [[${map}]]
+
+    const dtd = [[[${dto}]]]
+
+    console.log(list)
+    console.log(map)
+    console.log(dto)
+
+</script>
+</body>
+</html>
+
+
+    implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0'
+
+
+===컨트롤러
+    @GetMapping("/ex/ex3")
+    public void ex3(Model model){
+
+        model.addAttribute("arr", new String[]{"AAA","BBB","CCC"});
+    }
+
+===레이아웃
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Layout page</title>
+</head>
+<body>
+<div>
+    <h3>Sample Layout Header</h3>
+</div>
+<div layout:fragment="content">
+    <p>Page content goes here</p>
+</div>
+<div>
+    <h3>Sample Layout Footer</h3>
+</div>
+<th:block layout:fragment="script">
+
+</th:block>
+</body>
+</html>
+
+===ex3.html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/layout1.html}">
+
+<div layout:fragment="content">
+    <h1>ex3.html</h1>
+</div>
+
+<script layout:fragment="script" th:inline="javascript">
+    const arr = [[${arr}]]
+</script>
+
