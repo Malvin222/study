@@ -53,3 +53,110 @@ TodoMapper
     <select id="getCount" resultType="int">
         select count(tno) from tbl_todo
     </select>
+
+PageResponseDTO 작성
+@Getter
+@ToString
+public class PageResponseDTO<E> {
+
+    private int page;
+    private int size;
+    private int total;
+
+    //시작페이지번호
+    private int start;
+    //끝페이지번호
+    private int end;
+
+    //이전 페이지의 존재여부
+    private boolean prev;
+    //다음 페이지의 존재여부
+    private boolean next;
+
+    private List<E> dtoList;
+
+    @Builder(builderMethodName = "withAll")
+    public PageResponseDTO(PageRequestDTO pageRequestDTO, List<E> dtoList, int total){
+        this.page = pageRequestDTO.getPage();
+        this.size = pageRequestDTO.getSize();
+        
+        this.total = total;
+        this.dtoList = dtoList;
+    }
+
+}
+
+페이지 계산
+ 페이지가 1 인경우 시작페이지 : 1, 마지막페이지 :10
+ 페이지가 10인경우 시작페이지 : 1, 마지막페이지 :10
+ 페이지가 11인경우 시작페이지 : 1, 마지막페이지 :20
+  this.end = (int)(Math.ceil(this.page/10.0)) *10;
+  this.start = this.end -9;
+  int last = (int)(Math.ceil((total/(double)size)));
+  this.end = end>last ? last : end;
+
+이전(prev)/다음(next)
+  this.prev = this.start >1;
+  this.next = total > this.end * this.size;
+
+Service
+        //페이지
+    PageResponseDTO<TodoDTO> getList(PageRequestDTO pageRequestDTO);
+Impl
+      @Override
+    public PageResponseDTO<TodoDTO> getList(PageRequestDTO pageRequestDTO) {
+        List<TodoVO> voList = todoMapper.selectList(pageRequestDTO);
+        List<TodoDTO> dtoList = voList.stream()
+                .map(vo -> modelMapper.map(vo, TodoDTO.class))
+                .collect(Collectors.toList());
+        
+        int total = todoMapper.getCount(pageRequestDTO);
+        
+        PageResponseDTO<TodoDTO> pageResponseDTO = PageResponseDTO.<TodoDTO>withAll()
+                .dtoList(dtoList)
+                .total(total)
+                .pageRequestDTO(pageRequestDTO)
+                .build();
+        
+        return pageResponseDTO;
+    }
+
+테스트코드
+        @Test
+    public void testPaging() {
+
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().page(1).size(10).build();
+
+        PageResponseDTO<TodoDTO> responseDTO = todoService.getList(pageRequestDTO);
+
+        log.info(responseDTO);
+
+        responseDTO.getDtoList().stream().forEach(todoDTO -> log.info(todoDTO));
+
+    }
+
+TodoController
+        //목록
+    @GetMapping("/list")
+    public void list(@Valid PageRequestDTO pageRequestDTO,BindingResult bindingResult, Model model){
+
+        log.info("todo list......");
+        log.info(pageRequestDTO);
+        if(bindingResult.hasErrors()){
+            pageRequestDTO = PageRequestDTO.builder().build();
+        }
+        model.addAttribute("responseDTO", todoService.getList(pageRequestDTO));
+//        model.addAttribute("dtoList", todoService.getAll());
+    }
+
+list.jsp
+                          <c:forEach items="${responseDTO.dtoList}" var="dto">
+                            <tr>
+                                <th scope="row"><c:out value="${dto.tno}"/></th>
+                                <td><a href="/todo/read?tno=${dto.tno}" class="text-decoration-none"><c:out value="${dto.title}"/></a></td>
+                                <td><c:out value="${dto.writer}"/></td>
+                                <td><c:out value="${dto.dueDate}"/></td>
+                                <td><c:out value="${dto.finished}"/></td>
+                            </tr>
+                        </c:forEach>
+  
