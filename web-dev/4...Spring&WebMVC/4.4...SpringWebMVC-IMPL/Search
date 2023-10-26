@@ -1,0 +1,93 @@
+keyword -> 제목, 작성자 검색
+finished -> boolean 타입 (완료여부)
+from, to -> LocalDate
+
+PageRequestDTO
+      private String[] types;
+    private String keyword;
+    private boolean finished;
+    private LocalDate from;
+    private LocalDate to;
+
+동적쿼리
+  <foreach> : 반복처리 (List,Map,Set 같은 컬렉션 계열)
+
+xml 변경
+   <sql id="search">
+        <where>
+            <if test="types != null and types.length > 0">
+                <foreach collection="types" item="type" open="(" close=") " separator=" OR ">
+                    <if test="type == 't'.toString()">
+                        title like concat('%', #{keyword}, '%')
+                    </if>
+                    <if test="type == 'w'.toString()">
+                        writer like concat('%', #{keyword}, '%')
+                    </if>
+                </foreach>
+            </if>
+
+            <if test="finished">
+                <trim prefix="and">
+                    finished = 1
+                </trim>
+            </if>
+
+            <if test="from != null and to != null">
+                <trim prefix="and">
+                    dueDate between  #{from} and #{to}
+                </trim>
+            </if>
+        </where>
+    </sql>
+
+    <!--페이지처리-->
+    <select id="selectList" resultType="org.zerock.springex.domain.TodoVO">
+        select * from tbl_todo
+        <include refid="search"></include>
+        order by tno desc limit #{skip}, #{size}
+    </select>
+    <!--전체 데이터 수-->
+    <select id="getCount" resultType="int">
+        select count(tno) from tbl_todo
+        <include refid="search"></include>
+    </select>
+
+  PageRequestDTO 
+      public boolean checkType(String type) {
+        
+        if (type == null || types.length == 0) {
+            return false;
+        }
+        return Arrays.stream(types).anyMatch(type::equals);
+      }
+
+DTO getlink 수정
+      public String getLink(){
+        if(link == null){
+            StringBuilder builder = new StringBuilder();
+            builder.append("page="+ this.page);
+            builder.append("&size="+this.size);
+            if(finished){
+                builder.append("&finished=on");
+            }
+            if(types != null && types.length >0 ){
+                for (int i= 0; i< types.length ; i++){
+                    builder.append("&type=" + types[i]);
+                }
+            }
+            if(keyword != null){
+                try{
+                    builder.append("&keyword=" + URLEncoder.encode(keyword,"UTF-8"));
+                } catch (UnsupportedEncodingException e){
+                    e.printStackTrace();
+                }
+            }
+            if(from != null){
+                builder.append("&to" + to.toString());
+            }
+
+            return builder.toString();
+        }
+        return link;
+    }
+    
