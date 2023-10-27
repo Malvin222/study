@@ -73,3 +73,222 @@ sourceSets {
 
 
 compileJava.dependsOn('clean')
+
+=============== repository ->search->BoardSearch
+
+public interface BoardSearch {
+    
+    Page<Board> search1(Pageable pageable);
+}
+
+===========BoardSearchImpl
+    public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch {
+    public BoardSearchImpl(){
+        super(Board.class);
+    }
+    
+    @Override
+    public Page<Board> search1(Pageable pageable){
+        return null;
+    }
+}
+==================BoardRepository
+public interface BoardRepository extends JpaRepository<Board, Long>, BoardSearch {
+    @Query(value ="select now()", nativeQuery = true)
+    String getTime();
+}
+
+=============BoardSearchImpl
+public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch {
+    public BoardSearchImpl(){
+        super(Board.class);
+    }
+
+    @Override
+    public Page<Board> search1(Pageable pageable){
+
+        QBoard board =QBoard.board; //Q도메인객체
+
+        JPQLQuery<Board> query = from(board); // select.. from board
+
+        query.where(board.title.contains("1")); //where title like...
+        
+        List<Board> List = query.fetch();
+        
+        long count = query.fetchCount();
+
+        return null;
+    }
+}
+
+========테스트
+    @Test
+    public void testSearch1(){
+        //2 page order by bno desc
+        Pageable pageable = PageRequest.of(1,10,Sort.by("bno").descending());
+
+        boardRepository.search1(pageable);
+    }
+==========BoardSearchImpl
+    @Override
+    public Page<Board> search1(Pageable pageable){
+
+        QBoard board =QBoard.board; //Q도메인객체
+
+        JPQLQuery<Board> query = from(board); // select.. from board
+
+        query.where(board.title.contains("1")); //where title like...
+        //paging
+        this.getQuerydsl().applyPagination(pageable, query);
+
+        List<Board> list = query.fetch();
+
+        long count = query.fetchCount();
+
+        return null;
+    }
+
+===Impl
+public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch {
+    public BoardSearchImpl(){
+        super(Board.class);
+    }
+
+    @Override
+    public Page<Board> search1(Pageable pageable){
+
+        QBoard board =QBoard.board; //Q도메인객체
+
+        JPQLQuery<Board> query = from(board); // select.. from board
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();// (
+        booleanBuilder.or(board.title.contains("11")); //title like...
+        booleanBuilder.or(board.content.contains("11")); //content like..
+        query.where(booleanBuilder);
+        query.where(board.bno.gt(0L));
+
+//        query.where(board.title.contains("1")); //where title like...
+        //paging
+        this.getQuerydsl().applyPagination(pageable, query);
+
+        List<Board> list = query.fetch();
+
+        long count = query.fetchCount();
+
+        return null;
+    }
+}
+================ BoardSearch
+    //검색
+    Page<Board> searchAll(String[] types, String keyword, Pageable pageable);
+============IMPL 
+    @Override
+    public Page<Board> searchAll(String[] types, String keyword, Pageable pageable) {
+
+        QBoard board =QBoard.board;
+        JPQLQuery<Board> query =from(board);
+
+        if( (types !=null && types.length > 0) && keyword != null){ //검색조건과 키워드가 있다면
+            BooleanBuilder booleanBuilder =new BooleanBuilder(); // (
+            for(String type: types){
+                switch (type){
+                    case "t":
+                        booleanBuilder.or(board.title.contains(keyword));
+                        break;
+                    case "c":
+                        booleanBuilder.or(board.content.contains(keyword));
+                        break;
+                    case "w":
+                        booleanBuilder.or(board.writer.contains(keyword));
+                        break;
+                }
+            }//end for
+            query.where(booleanBuilder);
+        }// end if
+
+        //bno > 0
+        query.where(board.bno.gt(0L));
+
+        //paging
+        this.getQuerydsl().applyPagination(pageable, query);
+
+        List<Board> list = query.fetch();
+
+        long count = query.fetchCount();
+
+        return null;
+    }
+
+===========테스트코드
+    @Test
+    public void testSearchAll(){
+        String[] types = {"t","c","w"};
+        String keyword ="1";
+
+        Pageable pageable = PageRequest.of(0,10, Sort.by("bno").descending());
+
+        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
+    }
+=========Pate<T> 반환 -> list<T> : 실제목록 데이터 , Pageable : 페이지 관련 정보를 가진 객체 , long : 전체개수
+Impl
+        @Override
+    public Page<Board> searchAll(String[] types, String keyword, Pageable pageable) {
+
+        QBoard board =QBoard.board;
+        JPQLQuery<Board> query =from(board);
+
+        if( (types !=null && types.length > 0) && keyword != null){ //검색조건과 키워드가 있다면
+            BooleanBuilder booleanBuilder =new BooleanBuilder(); // (
+            for(String type: types){
+                switch (type){
+                    case "t":
+                        booleanBuilder.or(board.title.contains(keyword));
+                        break;
+                    case "c":
+                        booleanBuilder.or(board.content.contains(keyword));
+                        break;
+                    case "w":
+                        booleanBuilder.or(board.writer.contains(keyword));
+                        break;
+                }
+            }//end for
+            query.where(booleanBuilder);
+        }// end if
+
+        //bno > 0
+        query.where(board.bno.gt(0L));
+
+        //paging
+        this.getQuerydsl().applyPagination(pageable, query);
+
+        List<Board> list = query.fetch();
+
+        long count = query.fetchCount();
+
+        return new PageImpl<>(list, pageable, count);
+    }
+
+======테스트코드
+    @Test
+    public void testSearchAll(){
+        String[] types = {"t","c","w"};
+        String keyword ="1";
+
+        Pageable pageable = PageRequest.of(0,10, Sort.by("bno").descending());
+
+        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
+
+        //total pages
+        log.info(result.getTotalPages());
+
+        //pag size
+        log.info(result.getSize());
+
+        //pageNumber
+        log.info(result.getNumber());
+
+        //prev next
+        log.info(result.hasPrevious() + ": " + result.hasNext());
+        
+        result.getContent().forEach(board -> log.info(board));
+    }
