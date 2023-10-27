@@ -1,0 +1,130 @@
+게시물 등록/수정/삭제/조회
+게시물 페이징처리/검색
+
+JpaRepository : Spring Data JPA가 자동으로 객체를 생성하고 이를통해서 예외처리를 자동으로 하는데 이를 위해서 제동괴는 인터페이스
+
+엔티티 클래스 정의 @Entity
+domain -> Board
+  @Entity
+public class Board {
+    
+    @Id                          //GenerationType : IDENTITY :데이터베이스에 위임(auto_increment), SEQUENCE : 시퀀스 오브젝트 사용, TABLE : 키생성용 테이블 사용. AUTO 자동지정 (@EnableJpaAuditing 사용해야함)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long bno;
+    private String title;
+    private String content;
+    private String writer;
+    
+}
+============BaseEntity 생성
+@MappedSuperclass                    //AuditingEntityListener: 자동으로 시간값 지정
+@EntityListeners(value ={AuditingEntityListener.class})
+@Getter
+abstract class BaseEntity {
+
+    @CreatedDate
+    @Column(name ="regdate", updatable = false)
+    private LocalDateTime regDate;
+
+    @LastModifiedDate
+    @Column(name="moddate")
+    private LocalDateTime modDate;
+}
+
+==============B01App..
+@SpringBootApplication
+@EnableJpaAuditing
+public class B01Application {
+
+    public static void main(String[] args) {
+
+        SpringApplication.run(B01Application.class, args);
+    }
+
+}
+
+==============Board
+@Entity
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class Board {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long bno;
+
+    @Column(length = 500, nullable = false) //컬럼의 길이와 null 허용여부
+    private String title;
+    
+    @Column(length = 2000, nullable = false)
+    private String content;
+    
+    @Column(length = 50, nullable = false)
+    private String writer;
+
+}
+================BoardRepository : Spring Data JPA를 이용할때는 JpaRepository라는 인터페이스 사용
+public interface BoardRepository extends JpaRepository<Board, Long> {
+}
+
+
+==========테스트코드
+@SpringBootTest
+@Log4j2
+public class BoardRepositoryTests {
+
+    @Autowired
+    private BoardRepository boardRepository;
+    
+    @Test
+    public void testInsert(){
+        IntStream.rangeClosed(1,100).forEach(i->{
+            Board board = Board.builder()
+                    .title("title...."+i)
+                    .content("content...." +i)
+                    .writer("user"+(i%10))
+                    .build();
+            
+            Board result = boardRepository.save(board);
+            log.info("BNO:" +result.getBno());
+        });
+    }
+======업데이트 기능
+Board
+      public void change(String title, String content){
+        this.title = title;
+        this.content = content;
+    }
+
+===테스트
+    @Test
+    public void testUpdate(){
+        Long bno = 100L;
+        Optional<Board> result = boardRepository.findById(bno);
+        Board board = result.orElseThrow();
+        board.change("update.title 100","update content 100");
+        boardRepository.save(board);
+    }
+==페이지
+    @Test
+    public void testPaging(){
+        //1 page order by bno desc;
+        Pageable pageable = PageRequest.of(0,10,Sort.by("bno").descending());
+        Page<Board> result = boardRepository.findAll(pageable);
+
+        log.info("total count:" +result.getTotalElements());
+        log.info("total pages:" +result.getTotalPages());
+        log.info("page number:" +result.getNumber());
+        log.info("page size:" +result.getSize());
+
+        List<Board> todoList = result.getContent();
+        todoList.forEach(board -> log.info(board));
+    }
+
+    JPQL : SQL과 유사하게 JPA에서 사용하는 쿼리언어 (데이터베이스에 독립적으로 개발 가능)
+    @Query("select b from Board b where b title like concat('%',:keyword,'%')")
+    Page<Board> findKeyword(String keyword, Pageable pageable);
+  
