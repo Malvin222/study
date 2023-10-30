@@ -1,0 +1,252 @@
+    implementation 'org.modelmapper:modepmapper:3.1.0'
+=====config.RootConfig
+    @Configuration
+public class RootConfig {
+
+    @Bean
+    public ModelMapper getMapper(){
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration()
+                .setFieldMatchingEnabled(true)
+                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
+                .setMatchingStrategy(MatchingStrategies.STRICT);
+        
+        return modelMapper;
+    }
+
+}
+
+==================dto.BoardDTO
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class BoardDTO {
+    private Long bno;
+    private String title;
+    private String content;
+    private String writer;
+    private LocalDateTime regDate;
+    private LocalDateTime modDate;
+    
+}
+
+=================service.BoardService
+public interface BoardService {
+    Long register(BoardDTO boardDTO);
+}
+
+
+===================BoardServiceImpl
+@Service
+@Log4j2
+@RequiredArgsConstructor
+@Transactional
+public class BoardServiceImpl implements BoardService{
+    private final ModelMapper modelMapper;
+
+    private final BoardRepository boardRepository;
+
+    @Override
+    public Long register(BoardDTO boardDTO){
+        Board board = modelMapper.map(boardDTO, Board.class);
+        Long bno = boardRepository.save(board).getBno();
+        
+        return bno;
+    }
+}
+
+============================service.BoardServiceTests
+@SpringBootTest
+@Log4j2
+public class BoardServiceTests {
+
+    @Autowired
+    private BoardService boardService;
+
+    @Test
+    public void testRegister(){
+
+        log.info(boardService.getClass().getName());
+
+        BoardDTO boardDTO = BoardDTO.builder()
+                .title("Sample Title...")
+                .content("Sample Contetn")
+                .writer("useroo")
+                .build();
+
+        Long bno = boardService.register(boardDTO);
+
+        log.info("bno: " +bno);
+    }
+}
+
+============service
+    BoardDTO readOne(Long bno);
+     void  modify(BoardDTO boardDTO);
+        
+        @Override
+    public BoardDTO readOne(Long bno) {
+        Optional<Board> result = boardRepository.findById(bno);
+        Board board = result.orElseThrow();
+        BoardDTO boardDTO = modelMapper.map(board, BoardDTO.class);
+        return boardDTO;
+    }
+
+        @Override
+    public void modify(BoardDTO boardDTO) {
+        Optional<Board> result = boardRepository.findById(boardDTO.getBno());
+        Board board = result.orElseThrow();
+        board.change(boardDTO.getTitle(), boardDTO.getContent());
+        boardRepository.save(board);
+    }
+
+        @Test
+    public void testModify(){
+        BoardDTO boardDTO = BoardDTO.builder()
+                .bno(101L)
+                .title("Update...101")
+                .content("Update contetn 101....")
+                .build();
+        
+        boardService.modify(boardDTO);
+    }
+
+        void  remove(Long bno);
+
+            @Override
+    public void remove(Long bno) {
+        boardRepository.deleteById(bno);
+    }
+
+=========================dto.PageRequestDTO
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class PageRequestDTO {
+    @Builder.Default
+    private int page = 1;
+
+    @Builder.Default
+    private int size = 10;
+    private String type; // 검색종류 t,c,w,tc,tw,twc
+    private String keyword;
+
+    public String[] getType() {
+        if (type == null || type.isEmpty()) {
+            return null;
+        }
+        return type.split("");
+    }
+
+    public Pageable getPageable(String... props) {
+        return PageRequest.of(this.page - 1, this.size, Sort.by(props).descending());
+    }
+
+    private String link;
+
+    public String getLinl() {
+        if (link == null) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("page=" + this.page);
+            builder.append("&size=" + this.size);
+
+            if (type != null && type.length() > 0) {
+                builder.append("&type= " + type);
+            }
+            if (keyword != null) {
+                try {
+                    builder.append("&keyword=" + URLEncoder.encode(keyword, "UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+
+                }
+            }
+            link = builder.toString();
+        }
+        return link;
+    }
+}
+
+==========================PageResponseDTO
+@Getter
+@ToString
+public class PageResponseDTO<E> {
+    private int page;
+    private int size;
+    private int total;
+    
+    //페이지 시작번호
+    private int start;
+    //끝 페이지 번호
+    private int end;
+    
+    //이전 페이지의 존재여부
+    private boolean prev;
+    //다음페이지의 존재여부
+    private boolean next;
+    
+    private List<E> dtoList;
+    
+    @Builder(builderMethodName = "withAll")
+    public PageResponseDTO(PageRequestDTO pageRequestDTO, List<E> dtoList, int total){
+        if(total <= 0){
+            return;
+        }
+        this.page = pageRequestDTO.getPage();
+        this.size = pageRequestDTO.getSize();
+        
+        this.total = total;
+        this.dtoList = dtoList;
+        
+        this.end = (int)(Math.ceil(this.page / 10.0)) * 10; //화면에서의 마지막번호
+        
+        this.start = this.end -9 ; //화면에서의 시작번호
+        
+        int last = (int)(Math.ceil((total/(double)size))); //데이터의 개수를 계산한 마지막 페이지 번호
+        
+        this.end = end > last ? last : end;
+        
+        this.prev = this.start > 1 ;
+        
+        this.next = total > this.end * this.size;
+        
+    }
+            
+}
+
+===============service
+    PageResponseDTO<BoardDTO> list(PageRequestDTO pageRequestDTO);
+
+    @Override
+    public PageResponseDTO<BoardDTO> list(PageRequestDTO pageRequestDTO) {
+        String[] types = pageRequestDTO.getType();
+        String keyword = pageRequestDTO.getKeyword();
+        Pageable pageable =pageRequestDTO.getPageable("bno");
+
+        Page<Board> result = boardRepository.searchAll(types, keyword, pageable);
+
+        List<BoardDTO> dtoList =result.getContent().stream()
+                .map(board -> modelMapper.map(board, BoardDTO.class)).collect(Collectors.toList());
+
+        return PageResponseDTO.<BoardDTO>withAll()
+                .pageRequestDTO(pageRequestDTO)
+                .dtoList(dtoList)
+                .total((int)result.getTotalElements())
+                .build();
+    }
+
+=======================Test
+    @Test
+    public void  testList(){
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder()
+                .type("tcw")
+                .keyword("1")
+                .page(1)
+                .size(10)
+                .build();
+
+        PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
+        
+        log.info(responseDTO);
+    }
