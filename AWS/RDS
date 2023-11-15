@@ -20,4 +20,10 @@ time_zone : Asia/Seoul
 포트 : 포트
 
 DB 매니저 -> 디비접속 후 
-세션 및 계정 생성 , 데이터베이스 생성
+세션 ,데이터베이스 생성, 계정 생성
+
+application.properties 
+spring.datasource.url=jdbc:mariadb://호스트네임:호스트포트/데이터베이스네임
+spring.datasource.username
+spring.datasource.password
+
