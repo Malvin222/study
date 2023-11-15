@@ -56,3 +56,15 @@ $ git remote -> 원격저장소 표시
 $ git push -u origin master -> 로컬 저장소 파일 및 폴더를 원격 저장소로 푸시 (로컬저장소 커밋된 내역만 푸시)
 
 touch log.txt
+
+서버에서 pull
+현재 상황 커밋
+git add . 
+git status
+git commit -m aa
+
+변경상황 pull
+git pull 
+git merge 
+
+변경내용 확인 
