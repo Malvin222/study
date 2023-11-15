@@ -1,0 +1,30 @@
+COMMAND
+
+
+git clone url : 프로젝트 클론
+git remote url : 원격 프로젝트 연결
+
+cd : 경로 이동
+ls : 현재파일 확인
+mkdir : 폴더 생성
+rm : 파일삭제
+rm -r-f 폴더이름 : 해당 폴더 및 폴더 파일 전체 삭제
+vim : 파일 수정 (a : 파일 수정 , esc:커맨드입력 탈출, :q : 파일 나가기, :wq 파일 저장후 나가기 )
+pwd : 현재경로 확인
+
+
+
+서버 설정 
+git clone : 프로젝트 클론 
+git add . 
+git status 
+git commit -m 메시지
+
+git pull 
+git merge
+
+application.properties 변경
+
+./gradlew build -> 빌드
+
+java -jar jar (파일 네임 배포)
