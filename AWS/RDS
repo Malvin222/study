@@ -14,6 +14,8 @@ character_set_results : utf8
 character_set_server : utf8
 time_zone : Asia/Seoul
 
+수정후 재부팅 
+
 엔드포인트 : 호스트네임
 포트 : 포트
 
