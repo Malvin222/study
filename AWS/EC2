@@ -1,1 +1,23 @@
 SERVER INSTANCE
+인스턴스 시작 
+이름: "내 웹서버"
+OS : Amazon Linux
+인스턴스 유형 : t2.micro (프리티어)
+키페어 : 새로생성 ->키페어 유형 RSA , .pem
+스토리지 구성 : 프리티어는 30까지 사용가능
+
+보안그룹
+
+디폴트 (DB연결) 규칙 편집 : 
+아웃바운드,인바운드
+IP4 , MYSQL/Aurora TCP 3306 0.0.0.0/0(모두 허용)
+
+launch-wizard-1
+IP4 HTTP TCP 80 0.0.0.0/0
+IP4 사용자 지정 TCP TCP 8080 0.0.0.0/0
+IP4 SSH TCP 22 0.0.0.0/0
+
+리눅스 서버 연결 
+putty 및 사이트 인스턴스 연결
+puuty : 다운받은 키페어 puttygen으로 변경 -> 호스트 네임 작성 및 SSH->Auth-> Credentials -> EC2-USER 
+인스턴스 연결 자동적용
