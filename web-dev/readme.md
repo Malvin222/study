@@ -25,7 +25,7 @@
    1. [스프링부트 소개](https://github.com/Malvin222/study/tree/main/web-dev/5...Springboot/5.1...SpringBoot)
    2. [Thymeleaf](https://github.com/Malvin222/study/tree/main/web-dev/5...Springboot/5.2...Thymeleaf)
    3. [Spring Data JPA](https://github.com/Malvin222/study/tree/main/web-dev/5...Springboot/5.3...SpringData-JPA)
-6. 6장 이상부터는 프로젝트로 대체 되었습니다.
+6. 6장 이후부터는 프로젝트로 대체 되었습니다.
    1. a
 7. a
     1. a
