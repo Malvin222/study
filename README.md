@@ -11,4 +11,4 @@
 - [3...Session&Cookie&Filter&Listener](https://github.com/Malvin222/study/tree/main/web-dev/3...Session%26Cookie%26Filter%26Listener)
 - [4...Spring&WebMVC](https://github.com/Malvin222/study/tree/main/web-dev/4...Spring%26WebMVC)
 - [5...Springboot](https://github.com/Malvin222/study/tree/main/web-dev/5...Springboot)
-- 6장 이상부터는 프로젝트로 대체 되었습니다.
+- 6장 이후부터는 프로젝트로 대체 되었습니다.
