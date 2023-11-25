@@ -1,0 +1,37 @@
+기본설정 
+
+@Configuration
+@EnableWebSecurity
+public class SecuriyConfig {
+    
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+        return http.build();
+    }
+}
+
+특정  리소스에 대해서 권한 설정
+requestMatchers(new AntPathRequestMatchers("/user**")).authenticated()  //해당 경로는 모두 인증
+requestMatchers(new AntPathRequestMatchers(리소스)).permitAll() //해당 리소스 경로는 모두 허용
+
+hasAnyRole() //레벨설정
+requestMatchers(new AntPathRequestMatchers(리소스)).hasAnyRole("ADMIN") //해당 리소스 경로는 ADMIN레벨의 권한만 가진자만 허용
+
+anyRequest() // 모든 리소스
+anyRequest().permitAll() //모든 경로 허용
+
+
+///ex1
+@Configuration
+@EnableWebSecurity
+public class SecuriyConfig {
+    
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+        http
+        .authorizeHttpRequests()
+        .requestMatchers(new AntPathRequestMatcher("/book**")).authenticated()
+        .anyRequest().permitAll();
+        return http.build();
+    }
+}
