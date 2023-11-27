@@ -1,5 +1,7 @@
-COMMAND
+yum list java*
+sudo yum install java-17 amazon-correctto.x86_64
 
+COMMAND
 
 git clone url : 프로젝트 클론
 git remote url : 원격 프로젝트 연결
