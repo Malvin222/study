@@ -3,6 +3,8 @@ sudo yum install java-17 amazon-correctto.x86_64
 
 sudo yum install git
 
+
+chmod 777 ./gradlew
 COMMAND
 
 git clone url : 프로젝트 클론
