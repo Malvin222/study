@@ -68,3 +68,12 @@ git pull
 git merge 
 
 변경내용 확인 
+
+
+강제로 푸쉬
+git push --force origin main
+git push -f origin main
+
+히스토리 병합
+git pull origin main --allow-unrelated-histories
+
