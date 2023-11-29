@@ -27,3 +27,6 @@ spring.datasource.url=jdbc:mariadb://호스트네임:호스트포트/데이터�
 spring.datasource.username
 spring.datasource.password
 
+DB 한글설정
+alter database DB명 default character set UTF8;
+ALTER TABLE 테이블명 CONVERT TO CHARACTER SET utf8;
