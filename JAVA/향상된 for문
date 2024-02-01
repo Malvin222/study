@@ -1,0 +1,13 @@
+ Enhanced for문 또는 forEach
+Java 5부터 도입
+
+for (int i = 0; i < array.length; i++) {
+    // 배열의 각 요소에 대한 작업 수행
+    // array[i]를 사용
+}
+
+for (String c : completion) {
+    completionSet.add(c);
+}
+completion 배열의 각 요소를 변수 c에 할당하고, 반복적으로 코드 블록을 실행합니다.
+각 c를 completionSet에 추가합니다. 이는 HashSet의 add 메소드를 호출하여 새로운 원소를 추가하는 것입니다.
