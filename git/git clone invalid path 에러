@@ -1,0 +1,4 @@
+clone한 디렉터리로 이동
+  git config core.protectNTFS false
+  git checkout -f HEAD
+clone하는 파일 이름에 특수문자가 있어 윈도우 파일 시스템이 인식하지 못하는 파일이 있는 것
