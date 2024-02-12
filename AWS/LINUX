@@ -35,3 +35,9 @@ DB주소 변경
 ./gradlew build -> 빌드
 
 java -jar jar (파일 네임 배포)
+
+
+
+빌드시 런타임오류
+빌드그래들
+    runtimeOnly 'com.mysql:mysql-connector-j' 로 수정
