@@ -30,6 +30,7 @@ git pull
 git merge
 
 application.properties 변경
+DB주소 변경
 
 ./gradlew build -> 빌드
 
