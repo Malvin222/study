@@ -1,5 +1,5 @@
 yum list java*
-sudo yum install java-17 amazon-correctto.x86_64
+sudo yum install java-17-amazon-corretto.x86_64
 
 sudo yum install git
 
