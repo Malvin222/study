@@ -5,7 +5,7 @@ DB클러스터 식별자 : DB 이름
 마스터 암호 : 내 계정 암호
 자동 백업 활성화 비활성
 
-파라미터 그룹
+파라미터 그룹(생성 편집)
 character_set_client : utf8
 character_set_connection : utf8
 character_set_database : utf8
