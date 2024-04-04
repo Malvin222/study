@@ -13,4 +13,4 @@
 - [5...Springboot](https://github.com/Malvin222/study/tree/main/web-dev/5...Springboot)
 - 6장 이후부터는 프로젝트로 대체 되었습니다.
 
-### [스프링 입문](https://github.com/Malvin222/study/tree/main/hello-spring)
+### [스프링 입문](https://github.com/Malvin222/study/tree/main/hello-spring) : 기본 등록 및 조회
