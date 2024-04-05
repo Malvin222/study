@@ -10,7 +10,10 @@
   - 각 페이지 디자인
 
 *[비밀번호 추가](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard3)
-  - 작성,상세 페이지수정(삭제 및 수정 버튼 password 경로 추가) , 패스워드 페이지 생성 , 컨트롤러 작성(password 맵핑), 엔티티 추가 
+  - 작성,상세 페이지수정(삭제 및 수정 버튼 password 경로 추가)
+  -  패스워드 페이지 생성
+  -   컨트롤러 작성(password 맵핑)
+  -   paaword 엔티티 추가 
 
 *[검색 및 페이징](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard1)
 
