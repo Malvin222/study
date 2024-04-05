@@ -1,6 +1,8 @@
 SpringBoot - Spring Web , Spring actuator, Data Jdbc , Data JPA, Spring devtools, Lombok, Database H2, 
 Maven, JAVA17, JSTL, JSP, H2
 
+h2 -> bin폴더 h2.bat으로 실행
+
 설정
 application.properties
 # jpa
