@@ -15,7 +15,11 @@
   -   컨트롤러 작성(password 맵핑)
   -   paaword 엔티티 추가 
 
-*[검색 및 페이징](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard1)
+*[검색 및 페이징](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard4)
+  -  paginationVO(페이지VO), boardVO(검색VO),EmptyChecker 추가
+  -  Controller list 변경
+  -  list 페이지 수정 (검색 및 페이지)
+  -  list 페이지 오류 수정해야함
 
 *[답변형게시판](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard1)
 
