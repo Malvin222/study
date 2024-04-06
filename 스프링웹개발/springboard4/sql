@@ -1,0 +1,45 @@
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (1,'작성자1', '제목1', '내용1', 'password1', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no, writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (2,'작성자2', '제목2', '내용2', 'password2', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (3,'작성자3', '제목3', '내용3', 'password3', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (4,'작성자4', '제목4', '내용4', 'password4', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (5,'작성자5', '제목5', '내용5', 'password5', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (6,'작성자6', '제목6', '내용6', 'password6', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (7,'작성자7', '제목7', '내용7', 'password7', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (8,'작성자8', '제목8', '내용8', 'password8', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (9,'작성자9', '제목9', '내용9', 'password9', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (10,'작성자10', '제목10', '내용10', 'password10', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (11,'작성자11', '제목11', '내용11', 'password11', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (12,'작성자12', '제목12', '내용12', 'password12', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (13,'작성자13', '제목13', '내용13', 'password13', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (14,'작성자14', '제목14', '내용14', 'password14', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+INSERT INTO board(no,writer, title, content, password, readcount, write_Time, edit_Time)
+VALUES (15,'작성자15', '제목15', '내용15', 'password15', 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
