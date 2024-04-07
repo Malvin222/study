@@ -21,7 +21,14 @@
   -  list 페이지 수정 (검색 및 페이지)
   -  list 페이지 오류 수정해야함
 
-*[답변형게시판](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard1)
+*[답변형게시판](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard4)
+  -  Cotroller - write 수정
+  -  serviceImpl - 추가 (컨트롤러의 write 코드 이동)
+  -  BoardRepository -추가 (seq Select쿼리 추가, seq +1 쿼리 추가)
+  -  Entity 추가 - (grp, seq, dep)
+  -  grp : 게시글 그룹
+  -  dep : 답글 깊이
+  -  seq : 답글 시퀀스 해당 게시글의 그룹과 게시글 깊이에서의 가장 작은 seq의 +1 인서트 후 나머지 시퀀스 업데이트)
 
 *[Rich Text Editor](https://github.com/Malvin222/study/tree/main/%EC%8A%A4%ED%94%84%EB%A7%81%EC%9B%B9%EA%B0%9C%EB%B0%9C/springboard1)
 
