@@ -26,6 +26,7 @@
                         ${pagination}
                     </div>
                 </div>--%>
+
                 <%--복합 검색을 위한 아코디언 검색창--%>
                 <div class="row mt-4">
                     <div class="col-md-10 offset-md-1">
@@ -37,10 +38,10 @@
                                     <%-- 검색인지 목록인지에 따라 옵션 펼침 여부를 다르게 처리 --%>
                                     <c:choose>
                                         <c:when test="${boardVO.search}">
-                                            <div class="collapse show" id="collapse-boddy">
+                                            <div class="collapse show" id="collapse-body">
                                         </c:when>
                                         <c:otherwise>
-                                            <div class="collpase" id="collapse-body">
+                                            <div class="collapse" id="collapse-body">
                                         </c:otherwise>
                                     </c:choose>
                                             <div class="card-body">
@@ -135,6 +136,9 @@
                                 <th>작성자</th>
                                 <th>작성일</th>
                                 <th>조회수</th>
+                                <th>grp</th>
+                                <th>seq</th>
+                                <th>dep</th>
                             </tr>
                         </thead>
                         <tbody class="text-center">
@@ -142,6 +146,14 @@
                             <tr>
                                 <td>${board.no}</td>
                                 <td class="text-start">
+                                    <c:if test="${board.dep>0}">
+                                        <%-- 답글 차수(dep)akszma 띄어쓰기 추가--%>
+                                        <c:forEach var="i" begin="1" end="${board.dep}">
+                                            &nbsp;&nbsp;
+                                        </c:forEach>
+                                        <%-- 답글에 아이콘 추가--%>
+                                        <i class="fa-solid fa-reply fa-rotate-180"></i>
+                                    </c:if>
                                     <a href="detail?no=${board.no}">
                                             ${board.title}
                                     </a>
@@ -149,6 +161,9 @@
                                 <td>${board.writer}</td>
                                 <td>${board.writeTime}</td>
                                 <td>${board.readcount}</td>
+                                <td>${board.grp}</td>
+                                <td>${board.seq}</td>
+                                <td>${board.dep}</td>
                             </tr>
                         </c:forEach>
                         </tbody>
@@ -159,56 +174,56 @@
             <div class="row mt-4">
                 <div class="col-md-10 offset-md-1">
                     <ul class="pagination justify-content-center">
-                    <%-- 처음이 있을 경우만 링크 설정 --%>
+
+                        <!-- 처음이 있을 경우만 링크 설정 -->
                         <c:choose>
                             <c:when test="${pagination.hasFirstBlock()}">
-                            <li class="page-item"><a class="page-link" href="#" data-page="${pagination.getFirst()}">&laquo;</a> </li>
+                                <li class="page-item"><a class="page-link" href="#" data-page="${pagination.getFirst()}">&laquo;</a></li>
                             </c:when>
                             <c:otherwise>
-                            <li class="page-item"><a class="page-link disabled" href="#">&laquo;</a> </li>
+                                <li class="page-item"><a class="page-link disabled" href="#">&laquo;</a></li>
                             </c:otherwise>
                         </c:choose>
 
-                        <%-- 이전이 있을 경우만 링크 설정 --%>
+                        <!-- 이전이 있을 경우만 링크 설정 -->
                         <c:choose>
                             <c:when test="${pagination.hasPreviousBlock()}">
                                 <li class="page-item"><a class="page-link" href="#" data-page="${pagination.getPrevious()}">&lt;</a></li>
                             </c:when>
                             <c:otherwise>
-                            <li class="page-item"><a class="page-link disabled" href="#">&lt;</a></li>
+                                <li class="page-item"><a class="page-link disabled" href="#">&lt;</a></li>
                             </c:otherwise>
                         </c:choose>
 
-                        <%-- begin부터 end까지 표시(보여줄 땐 p, 이동할 땐 p-1) --%>
+                        <!-- begin부터 end까지 표시(보여줄 땐 p, 이동할 땐 p-1) -->
                         <c:forEach var="p" begin="${pagination.begin}" end="${pagination.end}">
                             <c:choose>
                                 <c:when test="${p == pagination.current}">
-                                <li class="page-item active"><a class="page-link" href="#">${p}</a></li>
+                                    <li class="page-item active"><a class="page-link" href="#">${p}</a></li>
                                 </c:when>
                                 <c:otherwise>
-
-                                    <li class="page-item"><a class="page-link" data-pages="${p-1}" href="#">p</a></li>
+                                    <li class="page-item"><a class="page-link" href="#" data-page="${p-1}">${p}</a></li>
                                 </c:otherwise>
                             </c:choose>
                         </c:forEach>
 
-                        <%--다음이 있을 경우만 링크 설정--%>
+                        <!-- 다음이 있을 경우만 링크 설정 -->
                         <c:choose>
                             <c:when test="${pagination.hasNextBlock()}">
-                            <li class="page-item"><a class="page-link" href="#" data-page="${pagination.getNext()}">&gt;</a></li>
+                                <li class="page-item"><a class="page-link" href="#" data-page="${pagination.getNext()}">&gt;</a></li>
                             </c:when>
                             <c:otherwise>
-                            <li class="page-item"><a class="page-link disabled" href="#">&gt;</a></li>
+                                <li class="page-item"><a class="page-link disabled" href="#">&gt;</a></li>
                             </c:otherwise>
                         </c:choose>
                         
                         <%--마지막이 아닐 경우만 링크 설정--%>
                         <c:choose>
                             <c:when test="${pagination.hasLastBlock()}">
-                            <li class="page-item"><a class="page-link" href="#" data-page="${pagination.getLast()}">&raquo;</a></li>
+                                <li class="page-item"><a class="page-link" href="#" data-page="${pagination.getLast()}">&raquo;</a></li>
                             </c:when>
                             <c:otherwise>
-                            <li class="page-item"><a class="page-link disabled" href="#">&raquo;</a></li>
+                                <li class="page-item"><a class="page-link disabled" href="#">&raquo;</a></li>
                             </c:otherwise>
                         </c:choose>
                     </ul>
@@ -216,7 +231,7 @@
             </div>
 
             <%-- 검색창 --%>
-            <div class="row mt-4">
+<%--            <div class="row mt-4">
                 <div class="col-md-10 offset-md-1"></div>
                     <form class="form" method="get">
                         <div class="row">
@@ -237,7 +252,7 @@
                             </div>
                         </div>
                     </form>
-            </div>
+            </div>--%>
         </div>
 
 
@@ -247,25 +262,24 @@
 <script>
     $(function(){
         //.page-link에 대한 링크 설정(data-page 속성을 가지고 있을 경우)
-        $(".page-link").click(function (e){
-            e.preventDefault();
+        $(".page-link").click(function(e){
+            e.preventDefault();//기본 클릭 이벤트 제거
 
             const page = $(this).data("page");
-            console.log("page",page);
             if(!$.isNumeric(page)) return;
 
             //.search-form에 추가하여 전송
-            $("<input>").attr("name","page").attr("type","hidden").val(page).appendTo(".search-form");
+            $("<input>").attr("name", "page").attr("type", "hidden").val(page).appendTo(".search-form");
             $(".search-form").submit();
         });
 
-        //datepicker 설정(시작 ~ 종료일)
+        //datepicker 설정(시작~종료일)
         const picker = new Lightpick({
-            field:document.querySelector("input[name=begin]"),//시작일
-            secondField : document.querySelector("input[name=end]"),//종료일
-            format:"YYYY-MM-DDD", //입력 형식
-            maxDate:moment(),   //미래 선택 불가
-            numberOfMonths:1,   //1달씩 표시되도록 설정
+            field: document.querySelector("input[name=begin]"),//시작일
+            secondField: document.querySelector("input[name=end]"),//종료일
+            format:"YYYY-MM-DD",//입력 형식
+            maxDate:moment(),//미래 선택 불가
+            numberOfMonths:1,//1달씩 표시되도록 설정
         });
     });
 

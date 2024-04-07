@@ -1,5 +1,6 @@
 package com.malvin.springboard1.controller;
 
+import com.malvin.springboard1.service.BoardService;
 import com.malvin.springboard1.vo.BoardPaginationVO;
 import com.malvin.springboard1.vo.BoardVO;
 import com.malvin.springboard1.entity.Board;
@@ -27,12 +28,19 @@ public class BoardController {
     @Autowired
     private BoardRepository boardRepository;
 
+    @Autowired
+    private BoardService boardService;
+
+
+    //list의 정렬 순서를 grp와 seq에 의해 처리되도록 변경
     @RequestMapping("/")
     public String list(Model model,
                        @ModelAttribute BoardVO boardVO,
-
                        @PageableDefault(page = 0,size = 10)
-                       @SortDefault(sort = "no",direction = Sort.Direction.DESC)
+                       @SortDefault.SortDefaults({
+                               @SortDefault(sort = "grp", direction = Sort.Direction.DESC),
+                               @SortDefault(sort = "seq", direction = Sort.Direction.ASC)
+                       })
                        Pageable pageable){
         Page<Board> data = boardRepository.findAll(boardVO.specification(),pageable);
         model.addAttribute("data", data);
@@ -47,8 +55,7 @@ public class BoardController {
 
     @PostMapping("/write")
     public String write(@ModelAttribute Board board){
-        Board result = boardRepository.save(board);
-/*        return "redirect:/";*/
+        Board result = boardService.write(board);
         return "redirect:detail?no="+result.getNo();
     }
 
@@ -98,14 +105,25 @@ public class BoardController {
         return "redirect:detail";
     }
     //비밀번호 로직이 추가되었으므로 단순하게 번호를 받는 것이 아닌 FlashMap을 수신하는 코드로 변경
+    //(+추가) 답글이 달린 글은 삭제가 불가하도록 처리(삭제 처리하려면 decreaseSequence 호출)
     @GetMapping("delete")
     public String delete(HttpServletRequest requset){
         //FlashMap 수신 코드
         Map<String,?> map = RequestContextUtils.getInputFlashMap(requset);
         if(map == null) throw new RuntimeException("권한 없음");
         Long no = (Long)map.get("no");
+
+        long count =boardRepository.countByGrp(no);
+        if(count>1){
+            return "redirect:delete_error";
+        }
         boardRepository.deleteById(no);
         return "redirect:/";
+    }
+
+    @GetMapping("/delete.error")
+    public String deleteError(){
+        return "deleteError";
     }
 
 /*    @GetMapping("delete")

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <jsp:include page="template/header.jsp"></jsp:include>
 
 <div class="container-fluid">
@@ -15,6 +16,11 @@
     </div>
 
     <form method="post" class="board-form">
+
+        <c:if test="${param.no != null}">
+            <%-- no가 있을 경우 답글이므로 전달을 위한 hidden field 생성--%>
+            <input type="hidden" name="no" value="${param.no}">
+        </c:if>
 
     <div class="row mt-4">
         <div class="col-md-10 offset-md-1">

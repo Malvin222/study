@@ -27,7 +27,7 @@ public class BoardVO {
                 (title !=null && !title.isEmpty()) || (content !=null && !content.isEmpty()) ||
                 (begin !=null && !begin.isEmpty()) || (end !=null && !end.isEmpty());
 */
-        return !EmptyChecker.isEmpty(no, writer,title,content,begin,end);
+        return !EmptyChecker.isEmpty(no, writer, title, content, begin, end);
     }
     // 시간 객체 반환
     public Timestamp beginTime(){
@@ -39,37 +39,39 @@ public class BoardVO {
 
 
     //JPA Specification을 위한 specc 생성
+//	JPA Specification을 위한 spec 생성
     public Specification<Board> specification(){
         return (root, query, builder) -> {
-            List<Predicate> predicateList =new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             //번호 조건 추가
-            if(!EmptyChecker.isEmpty(this.no)){
-                predicateList.add(builder.equal(root.get("no"), this.no));
+            if(!EmptyChecker.isEmpty(this.no)) {
+                predicates.add(builder.equal(root.get("no"), this.no));
             }
 
             //작성자 조건 추가
-            if(!EmptyChecker.isEmpty(this.writer)){
-                predicateList.add(builder.equal(root.get("writer"), this.writer));
+            if(!EmptyChecker.isEmpty(this.writer)) {
+                predicates.add(builder.equal(root.get("writer"), this.writer));
             }
 
             //제목 조건 추가
-            if(!EmptyChecker.isEmpty(this.title)){
-                predicateList.add(builder.like(root.get("title"),"%"+ this.title + "%"));
+            if(!EmptyChecker.isEmpty(this.title)) {
+                //predicates.add(builder.equal(root.get("title"), this.title));//일치검색
+                predicates.add(builder.like(root.get("title"), "%"+this.title+"%"));//유사검색
             }
 
             //내용 조건 추가
-            if(!EmptyChecker.isEmpty(this.content)){
-                predicateList.add(builder.like(root.get("content"), "%"+this.content+ "%"));
+            if(!EmptyChecker.isEmpty(this.content)) {
+                predicates.add(builder.like(root.get("content"), "%"+this.content+"%"));
             }
 
             //기간 조건 추가
-            if(!EmptyChecker.isEmpty(this.begin)&&!EmptyChecker.isEmpty(this.end)){
-                predicateList.add(builder.between(root.get("writeTime"),this.beginTime(),this.endTime()));
+            if(!EmptyChecker.isEmpty(this.begin) && !EmptyChecker.isEmpty(this.end)) {
+                predicates.add(builder.between(root.get("writeTime"), this.beginTime(), this.endTime()));
             }
 
-            //end로 합성한 뒤 반환
-            return builder.and(predicateList.stream().toArray(Predicate[]::new));
+            //and로 합성한 뒤 반환
+            return builder.and(predicates.stream().toArray(Predicate[]::new));
         };
     }
 }
